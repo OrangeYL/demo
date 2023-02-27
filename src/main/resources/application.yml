@@ -1,0 +1,9 @@
+# 应用名称
+server:
+  port: 8080
+
+spring:
+  application:
+    name: demo
+
+
