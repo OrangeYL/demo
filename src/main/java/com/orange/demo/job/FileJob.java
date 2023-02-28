@@ -1,8 +1,7 @@
 package com.orange.demo.job;
 
-import com.orange.demo.entity.Equitment;
-import com.orange.demo.entity.Student;
-import com.sun.scenario.effect.impl.sw.sse.SSEBlend_SRC_OUTPeer;
+import com.orange.demo.entity.EquDetailsInfo;
+import com.orange.demo.entity.EquInfo;
 import lombok.extern.slf4j.Slf4j;
 import org.quartz.Job;
 import org.quartz.JobDataMap;
@@ -12,7 +11,6 @@ import org.quartz.JobExecutionException;
 import java.io.*;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 
@@ -35,16 +33,16 @@ public class FileJob implements Job {
             return;
         }
         files.forEach(item ->{
-            List<Equitment> equitments = new ArrayList<>();
+            List<EquInfo> equInfos = new ArrayList<>();
             List<File> list = getFile(item.getAbsolutePath());
             if(list.size() <= 0){
                 return;
             }
             for(File e : list){
-                Equitment equitment = new Equitment();
+                EquInfo equInfo = new EquInfo();
                 //设备名
                 String eName = item.getName();
-                equitment.setEName(eName);
+                equInfo.setEName(eName);
 
                 String filePath = "";
                 if(fileName.contains(".txt")){
@@ -56,8 +54,8 @@ public class FileJob implements Job {
                 InputStream inputStream = null;
                 try {
                     inputStream = new FileInputStream(file);
-                    equitment = readTxt(inputStream,equitment);
-                    equitments.add(equitment);
+                    equInfo = readTxt(inputStream,equInfo);
+                    equInfos.add(equInfo);
                     //移动文件夹（先复制再删除）
                     moveFolder(eName,e.getAbsolutePath(),storePath);
                 } catch (FileNotFoundException exception) {
@@ -66,23 +64,23 @@ public class FileJob implements Job {
             }
         });
     }
-    public Equitment readTxt(InputStream is,Equitment equitment){
-        String[] names = {"Tom","Candy"};
+    public EquInfo readTxt(InputStream is,EquInfo equInfo){
+        String[] padNos = {"534","535"};
         InputStreamReader reader = null;
         BufferedReader bufferedReader = null;
         String line = null;
-        List<Student> students = null;
+        List<EquDetailsInfo> equDetailsInfos = null;
         try {
             reader = new InputStreamReader(is, "GBK");
             bufferedReader = new BufferedReader(reader);
             int index = 1;
             SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-            students = new ArrayList<>();
+            equDetailsInfos = new ArrayList<>();
             while((line = bufferedReader.readLine()) != null){
-                Student student = new Student();
+                EquDetailsInfo equDetailsInfo = new EquDetailsInfo();
                 String[] data = line.split(",");
                 if(index == 1){
-                    equitment.setEType(data[0]);
+                    equInfo.setEType(data[0]);
                     index++;
                     continue;
                 }
@@ -90,26 +88,29 @@ public class FileJob implements Job {
                     index++;
                     continue;
                 }
-                String name = data[0];
-                for(int i = 0;i <names.length;i++){
-                    if(name.equals(names[i])){
-                        int grate = Integer.parseInt(data[1]);
-                        Date date = format.parse(data[2]);
-                        student.setName(name);
-                        student.setGrade(grate);
-                        student.setRecodeTime(date);
-                        students.add(student);
+                String padNo = data[3];
+                for(int i = 0;i < padNos.length;i++){
+                    if(padNo.equals(padNos[i])){
+                        equDetailsInfo.setBoardId(data[0]);
+                        equDetailsInfo.setPadNo(data[3]);
+                        equDetailsInfo.setInspStTime(data[8]);
+                        equDetailsInfo.setInspVol(Double.valueOf(data[9]));
+                        equDetailsInfo.setInspArea(Double.valueOf(data[10]));
+                        equDetailsInfo.setInspHei(Double.valueOf(data[11]));
+                        equDetailsInfo.setInspX(Double.valueOf(data[12]));
+                        equDetailsInfo.setInspY(Double.valueOf(data[13]));
+                        equDetailsInfos.add(equDetailsInfo);
                     }
                 }
             }
-            equitment.setList(students);
+            equInfo.setList(equDetailsInfos);
             bufferedReader.close();
             reader.close();
             is.close();
         } catch (Exception e) {
            log.info("文件读取错误！");
         }
-        return equitment;
+        return equInfo;
     }
     public List<File> getFile(String path){
         if(path == null || path.equals("")){
