@@ -2,11 +2,14 @@ package com.orange.demo.job;
 
 import com.orange.demo.entity.EquDetailsInfo;
 import com.orange.demo.entity.EquInfo;
+import com.orange.demo.service.EquDetailsInfoService;
+import com.orange.demo.service.EquInfoService;
 import lombok.extern.slf4j.Slf4j;
 import org.quartz.Job;
 import org.quartz.JobDataMap;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.*;
 import java.text.SimpleDateFormat;
@@ -27,6 +30,9 @@ public class FileJob implements Job {
         String path = map.get("path").toString();
         String storePath = map.get("storePath").toString();
         String fileName = map.get("fileName").toString();
+        JobDataMap jobDataMap = jobExecutionContext.getJobDetail().getJobDataMap();
+        EquInfoService equInfoService = (EquInfoService) jobDataMap.get("equInfoService");
+        EquDetailsInfoService equDetailsInfoService = (EquDetailsInfoService) jobDataMap.get("equDetailsInfoService");
         //得到path路径下的所有文件夹
         List<File> files = getFile(path);
         if(files.size() <= 0){
@@ -38,6 +44,7 @@ public class FileJob implements Job {
             if(list.size() <= 0){
                 return;
             }
+            //读取文件
             for(File e : list){
                 EquInfo equInfo = new EquInfo();
                 //设备名
@@ -60,6 +67,23 @@ public class FileJob implements Job {
                     moveFolder(eName,e.getAbsolutePath(),storePath);
                 } catch (FileNotFoundException exception) {
                     log.info("文件不存在！");
+                }
+            }
+            //保存到数据库
+            if(equInfos.size() > 0){
+                for(EquInfo e : equInfos){
+                    EquInfo equInfo = new EquInfo();
+                    equInfo.setEName(e.getEName());
+                    equInfo.setEType(e.getEType());
+                    equInfoService.save(equInfo);
+
+                    List<EquDetailsInfo> infos = e.getList();
+                    if(infos.size() > 0){
+                        for(EquDetailsInfo info : infos){
+                            info.setEId(equInfo.getId());
+                            equDetailsInfoService.save(info);
+                        }
+                    }
                 }
             }
         });

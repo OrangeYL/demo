@@ -1,6 +1,8 @@
 package com.orange.demo.controller;
 
 import com.orange.demo.job.FileJob;
+import com.orange.demo.service.EquDetailsInfoService;
+import com.orange.demo.service.EquInfoService;
 import de.felixroske.jfxsupport.FXMLController;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -9,6 +11,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import org.quartz.*;
 import org.quartz.impl.StdSchedulerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 
 
 import java.net.URL;
@@ -36,6 +39,10 @@ public class PrimaryStageController implements Initializable {
     @FXML
     private Button sureBt;
 
+    @Autowired
+    private EquInfoService equInfoService;
+    @Autowired
+    private EquDetailsInfoService equDetailsInfoService;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -50,11 +57,13 @@ public class PrimaryStageController implements Initializable {
                 JobDetail job = JobBuilder.newJob(FileJob.class)
                         .withIdentity("FileJob", "FileJobGroup")
                         .build();
+                job.getJobDataMap().put("equInfoService",equInfoService);
+                job.getJobDataMap().put("equDetailsInfoService",equDetailsInfoService);
                 //定义触发器，会马上执行一次，接着每隔一分钟执行一次
                 Trigger trigger= TriggerBuilder.newTrigger()
                         .withIdentity("testTrigger", "testTriggerGroup")
                         .startNow()
-                        .withSchedule(SimpleScheduleBuilder.repeatMinutelyForever(1))
+                        .withSchedule(SimpleScheduleBuilder.repeatMinutelyForever(10))
                         .usingJobData("path",path)
                         .usingJobData("storePath",storePath)
                         .usingJobData("fileName",fileName)

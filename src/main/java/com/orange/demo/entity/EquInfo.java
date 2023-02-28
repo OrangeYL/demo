@@ -1,5 +1,9 @@
 package com.orange.demo.entity;
 
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -12,9 +16,13 @@ import java.util.List;
  * @description: 设备信息
  */
 @Data
+@TableName("equ_info")
 public class EquInfo implements Serializable {
 
     private static final long serialVersionUID = 1L;
+
+    @TableId(type = IdType.ID_WORKER_STR)
+    private String id;
 
     //设备名称
     private String eName;
@@ -23,6 +31,7 @@ public class EquInfo implements Serializable {
     private String eType;
 
     //设备详细数据
+    @TableField(exist = false)
     private List<EquDetailsInfo> list = new ArrayList<>();
 
 }
