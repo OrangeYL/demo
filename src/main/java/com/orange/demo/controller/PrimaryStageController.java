@@ -25,12 +25,6 @@ import java.util.ResourceBundle;
 @FXMLController
 public class PrimaryStageController implements Initializable {
     @FXML
-    private Label pathLabel;
-    @FXML
-    private Label storeLabel;
-    @FXML
-    private Label fileNameLabel;
-    @FXML
     private TextField pathField;
     @FXML
     private TextField storeField;
@@ -47,19 +41,22 @@ public class PrimaryStageController implements Initializable {
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         sureBt.setOnAction(e->{
+            //文件路径
             String path = pathField.getText();
+            //存放路径
             String storePath = storeField.getText();
+            //文件名称
             String fileName = fileNameField.getText();
             try {
                 //获取任务调度器的实例
                 Scheduler scheduler = StdSchedulerFactory.getDefaultScheduler();
-                //定义任务调度实例，并与TestJob(具体任务)绑定
+                //定义任务调度实例，并与Job(具体任务)绑定
                 JobDetail job = JobBuilder.newJob(FileJob.class)
                         .withIdentity("FileJob", "FileJobGroup")
                         .build();
                 job.getJobDataMap().put("equInfoService",equInfoService);
                 job.getJobDataMap().put("equDetailsInfoService",equDetailsInfoService);
-                //定义触发器，会马上执行一次，接着每隔一分钟执行一次
+                //定义触发器，会马上执行一次，接着每隔10分钟执行一次
                 Trigger trigger= TriggerBuilder.newTrigger()
                         .withIdentity("testTrigger", "testTriggerGroup")
                         .startNow()
