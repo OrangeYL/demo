@@ -1,5 +1,6 @@
 package com.orange.demo.job;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.orange.demo.entity.EquDetailsInfo;
 import com.orange.demo.entity.EquInfo;
 import com.orange.demo.service.EquDetailsInfoService;
@@ -9,11 +10,12 @@ import org.quartz.Job;
 import org.quartz.JobDataMap;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.*;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 
@@ -81,16 +83,30 @@ public class FileJob implements Job {
             //保存到数据库
             if(equInfos.size() > 0){
                 for(EquInfo e : equInfos){
-                    EquInfo equInfo = new EquInfo();
-                    equInfo.setEName(e.getEName());
-                    equInfo.setEType(e.getEType());
-                    equInfoService.save(equInfo);
-
+                    String eName = e.getEName();
+                    LambdaQueryWrapper<EquInfo> wrapper = new LambdaQueryWrapper<>();
+                    wrapper.eq(EquInfo::getEName,eName);
+                    EquInfo equInfo1 = equInfoService.getOne(wrapper);
                     List<EquDetailsInfo> infos = e.getList();
-                    if(infos.size() > 0){
-                        for(EquDetailsInfo info : infos){
-                            info.setEId(equInfo.getId());
-                            equDetailsInfoService.save(info);
+                    if (equInfo1 == null) {
+                        EquInfo equInfo = new EquInfo();
+                        equInfo.setEName(e.getEName());
+                        equInfo.setCreateTime(new Date());
+                        equInfoService.save(equInfo);
+                        if (infos.size() > 0) {
+                            for (EquDetailsInfo info : infos) {
+                                info.setEId(equInfo.getId());
+                                info.setCreateTime(new Date());
+                                equDetailsInfoService.save(info);
+                            }
+                        }
+                    } else {
+                        if (infos.size() > 0) {
+                            for (EquDetailsInfo info : infos) {
+                                info.setEId(equInfo1.getId());
+                                info.setCreateTime(new Date());
+                                equDetailsInfoService.save(info);
+                            }
                         }
                     }
                 }
@@ -102,8 +118,6 @@ public class FileJob implements Job {
         String[] padNos = {"534","535"};
         InputStreamReader reader = null;
         BufferedReader bufferedReader = null;
-        //读取的行
-        String line = null;
         //设备详细数据
         List<EquDetailsInfo> equDetailsInfos = null;
         try {
@@ -111,25 +125,28 @@ public class FileJob implements Job {
             bufferedReader = new BufferedReader(reader);
             int index = 1;
             equDetailsInfos = new ArrayList<>();
+            //第一行只取设备型号
+            String line = bufferedReader.readLine();
+            //设备类型
+            String eType = null;
+            if(line != null){
+                String[] strings = line.split(",");
+                eType = strings[0];
+            }
             while((line = bufferedReader.readLine()) != null){
+                //第二行列名跳过
+                if(index == 1){
+                    index++;
+                    continue;
+                }
                 //设备数据，即txt文件中的数据
                 EquDetailsInfo equDetailsInfo = new EquDetailsInfo();
                 String[] data = line.split(",");
-                //第一行只取设备型号
-                if(index == 1){
-                    equInfo.setEType(data[0]);
-                    index++;
-                    continue;
-                }
-                //第二行列名，跳过
-                if(index == 2){
-                    index++;
-                    continue;
-                }
                 //跟ELM接口得到的数据进行比较，得到需要读取的行
                 String padNo = data[3];
                 for(int i = 0;i < padNos.length;i++){
                     if(padNo.equals(padNos[i])){
+                        equDetailsInfo.setEType(eType);
                         equDetailsInfo.setBoardId(data[0]);
                         equDetailsInfo.setPadNo(data[3]);
                         equDetailsInfo.setInspStTime(data[8]);

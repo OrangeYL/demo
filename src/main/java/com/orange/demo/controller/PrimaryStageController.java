@@ -60,7 +60,7 @@ public class PrimaryStageController implements Initializable {
                 Trigger trigger= TriggerBuilder.newTrigger()
                         .withIdentity("testTrigger", "testTriggerGroup")
                         .startNow()
-                        .withSchedule(SimpleScheduleBuilder.repeatMinutelyForever(10))
+                        .withSchedule(SimpleScheduleBuilder.repeatMinutelyForever(2))
                         .usingJobData("path",path)
                         .usingJobData("storePath",storePath)
                         .usingJobData("fileName",fileName)
