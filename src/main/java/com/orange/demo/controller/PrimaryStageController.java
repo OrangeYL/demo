@@ -1,20 +1,23 @@
 package com.orange.demo.controller;
 
-import com.orange.demo.job.FileJob;
+import com.baomidou.mybatisplus.core.toolkit.StringUtils;
+import com.orange.demo.listener.FileListener;
 import com.orange.demo.service.EquDetailsInfoService;
 import com.orange.demo.service.EquInfoService;
+import com.orange.demo.utils.FileMonitor;
+import com.orange.demo.utils.FileUtils;
+import com.orange.demo.utils.PropertiesUtil;
 import de.felixroske.jfxsupport.FXMLController;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
-import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
-import org.quartz.*;
-import org.quartz.impl.StdSchedulerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 
+import java.io.File;
 import java.net.URL;
+import java.util.List;
 import java.util.ResourceBundle;
 
 /**
@@ -40,38 +43,42 @@ public class PrimaryStageController implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        sureBt.setOnAction(e->{
-            //文件路径
-            String path = pathField.getText();
-            //存放路径
-            String storePath = storeField.getText();
-            //文件名称
-            String fileName = fileNameField.getText();
-            try {
-                //获取任务调度器的实例
-                Scheduler scheduler = StdSchedulerFactory.getDefaultScheduler();
-                //定义任务调度实例，并与Job(具体任务)绑定
-                JobDetail job = JobBuilder.newJob(FileJob.class)
-                        .withIdentity("FileJob", "FileJobGroup")
-                        .build();
-                job.getJobDataMap().put("equInfoService",equInfoService);
-                job.getJobDataMap().put("equDetailsInfoService",equDetailsInfoService);
-                //定义触发器，会马上执行一次，接着每隔10分钟执行一次
-                Trigger trigger= TriggerBuilder.newTrigger()
-                        .withIdentity("testTrigger", "testTriggerGroup")
-                        .startNow()
-                        .withSchedule(SimpleScheduleBuilder.repeatMinutelyForever(2))
-                        .usingJobData("path",path)
-                        .usingJobData("storePath",storePath)
-                        .usingJobData("fileName",fileName)
-                        .build();
-                //使用调度器调度任务的执行
-                scheduler.scheduleJob(job,trigger);
-                //开启任务
-                scheduler.start();
-            } catch (SchedulerException exception) {
-                exception.printStackTrace();
-            }
+        //判断配置文件有没有值，如果有就显示出来
+        String path = PropertiesUtil.getValue("path");
+        String storePath = PropertiesUtil.getValue("storePath");
+        String fileName = PropertiesUtil.getValue("fileName");
+        if (StringUtils.isNotBlank(path)) {
+            pathField.setText(path);
+        }
+        if (StringUtils.isNotBlank(storePath)) {
+            storeField.setText(storePath);
+        }
+        if (StringUtils.isNotBlank(fileName)) {
+            fileNameField.setText(fileName);
+        }
+        sureBt.setOnAction(e -> {
+            String realPath = pathField.getText();
+            String realStorePath = storeField.getText();
+            String realFileName = fileNameField.getText();
+
+            //写进配置文件
+            PropertiesUtil.setValue("path", realPath);
+            PropertiesUtil.setValue("storePath", realStorePath);
+            PropertiesUtil.setValue("fileName", realFileName);
+
+            //得到所有的设备文件夹
+            List<File> file = FileUtils.getFile(realPath);
+            //遍历设备文件夹并创建监听
+            file.forEach(item -> {
+                FileMonitor fileMonitor = new FileMonitor(1000);
+                fileMonitor.monitor(item.getAbsolutePath(), new FileListener());
+                try {
+                    fileMonitor.start();
+                } catch (Exception exception) {
+                    exception.printStackTrace();
+                }
+            });
+
         });
     }
 }

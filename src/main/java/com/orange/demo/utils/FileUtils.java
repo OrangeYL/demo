@@ -1,119 +1,23 @@
-package com.orange.demo.job;
+package com.orange.demo.utils;
 
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.orange.demo.entity.EquDetailsInfo;
 import com.orange.demo.entity.EquInfo;
-import com.orange.demo.service.EquDetailsInfoService;
-import com.orange.demo.service.EquInfoService;
 import lombok.extern.slf4j.Slf4j;
-import org.quartz.Job;
-import org.quartz.JobDataMap;
-import org.quartz.JobExecutionContext;
-import org.quartz.JobExecutionException;
 
 import java.io.*;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 
 /**
  * @author: Li ZhiCheng
- * @create: 2023-02-2023/2/24 8:57
- * @description:
+ * @create: 2023-03-2023/3/3 15:33
+ * @description: 文件工具类
  */
 @Slf4j
-public class FileJob implements Job {
-    /**
-     * 该定时任务是隔一段时间，根据输入的文件路径，去扫描得到该路径下的所有设备文件夹，
-     * 然后遍历设备文件夹，得到该设备文件夹下的所有文件夹，接着根据文件名称找到对应的文件读取需要的数据，存进数据库
-     **/
-    @Override
-    public void execute(JobExecutionContext jobExecutionContext) throws JobExecutionException {
-        JobDataMap map = jobExecutionContext.getMergedJobDataMap();
-        //文件路径
-        String path = map.get("path").toString();
-        //存放路径
-        String storePath = map.get("storePath").toString();
-        //文件名称
-        String fileName = map.get("fileName").toString();
-        JobDataMap jobDataMap = jobExecutionContext.getJobDetail().getJobDataMap();
-        EquInfoService equInfoService = (EquInfoService) jobDataMap.get("equInfoService");
-        EquDetailsInfoService equDetailsInfoService = (EquDetailsInfoService) jobDataMap.get("equDetailsInfoService");
-        //得到path路径下的所有设备文件夹
-        List<File> files = getFile(path);
-        if(files.size() <= 0){
-            return;
-        }
-        files.forEach(item ->{
-            //存放设备信息，一个设备一个链表
-            List<EquInfo> equInfos = new ArrayList<>();
-            //得到item下的所有文件夹（item即设备文件夹）
-            List<File> list = getFile(item.getAbsolutePath());
-            if(list.size() <= 0){
-                return;
-            }
-            //根据文件名找到该文件夹下的文件进行读取
-            for(File e : list){
-                EquInfo equInfo = new EquInfo();
-                //设备名
-                String eName = item.getName();
-                equInfo.setEName(eName);
+public class FileUtils {
 
-                String filePath = "";
-                if(fileName.contains(".txt")){
-                    filePath = e.getAbsolutePath()+"\\"+fileName;
-                }else{
-                    filePath = e.getAbsolutePath() + "\\" + fileName + ".txt";
-                }
-                File file = new File(filePath);
-                InputStream inputStream = null;
-                try {
-                    inputStream = new FileInputStream(file);
-                    equInfo = readTxt(inputStream,equInfo);
-                    equInfos.add(equInfo);
-                    //移动文件夹（先复制再删除）
-                    moveFolder(eName,e.getAbsolutePath(),storePath);
-                } catch (FileNotFoundException exception) {
-                    log.info("文件不存在！");
-                }
-            }
-            //保存到数据库
-            if(equInfos.size() > 0){
-                for(EquInfo e : equInfos){
-                    String eName = e.getEName();
-                    LambdaQueryWrapper<EquInfo> wrapper = new LambdaQueryWrapper<>();
-                    wrapper.eq(EquInfo::getEName,eName);
-                    EquInfo equInfo1 = equInfoService.getOne(wrapper);
-                    List<EquDetailsInfo> infos = e.getList();
-                    if (equInfo1 == null) {
-                        EquInfo equInfo = new EquInfo();
-                        equInfo.setEName(e.getEName());
-                        equInfo.setCreateTime(new Date());
-                        equInfoService.save(equInfo);
-                        if (infos.size() > 0) {
-                            for (EquDetailsInfo info : infos) {
-                                info.setEId(equInfo.getId());
-                                info.setCreateTime(new Date());
-                                equDetailsInfoService.save(info);
-                            }
-                        }
-                    } else {
-                        if (infos.size() > 0) {
-                            for (EquDetailsInfo info : infos) {
-                                info.setEId(equInfo1.getId());
-                                info.setCreateTime(new Date());
-                                equDetailsInfoService.save(info);
-                            }
-                        }
-                    }
-                }
-            }
-        });
-    }
-    public EquInfo readTxt(InputStream is,EquInfo equInfo){
+    public static EquInfo readTxt(InputStream is, EquInfo equInfo){
         //后续是调用ELM接口得到对应的padNo
         String[] padNos = {"534","535"};
         InputStreamReader reader = null;
@@ -165,17 +69,17 @@ public class FileJob implements Job {
             reader.close();
             is.close();
         } catch (Exception e) {
-           log.info("文件读取错误！");
+            log.info("文件读取错误！");
         }
         return equInfo;
     }
-    public List<File> getFile(String path){
+    public static List<File> getFile(String path){
         if(path == null || path.equals("")){
             return new ArrayList<>();
         }
         return getAllFile(new File(path));
     }
-    public List<File> getAllFile(File dirFile){
+    public static List<File> getAllFile(File dirFile){
         // 如果文件夹不存在或者不是文件夹，则返回空链表
         if(Objects.isNull(dirFile) || !dirFile.exists() || dirFile.isFile()){
             return new ArrayList<>();
@@ -194,7 +98,7 @@ public class FileJob implements Job {
     }
 
     // 删除某个目录及目录下的所有子目录和文件
-    public boolean deleteDir(File dir) {
+    public static boolean deleteDir(File dir) {
         // 如果是文件夹
         if (dir.isDirectory()) {
             // 则读出该文件夹下的的所有文件
@@ -222,7 +126,7 @@ public class FileJob implements Job {
      oldPath：旧路径
      newPath：新路径
      **/
-    public void copyFolder(String eName,String oldPath, String newPath) {
+    public static void copyFolder(String eName,String oldPath, String newPath) {
         try {
             //创建设备文件夹
             String ePath = newPath + "\\" + eName;
@@ -279,11 +183,10 @@ public class FileJob implements Job {
             log.info("复制整个文件夹内容操作出错");
         }
     }
-    public  void moveFolder(String eName,String oldPath, String newPath) {
+    public static void moveFolder(String eName,String oldPath, String newPath) {
         // 先复制文件
         copyFolder(eName,oldPath, newPath);
         // 则删除源文件，以免复制的时候错乱
         deleteDir(new File(oldPath));
     }
-
 }
