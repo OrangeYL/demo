@@ -1,16 +1,15 @@
 package com.orange.demo.listener;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.orange.demo.entity.DataHelper;
 import com.orange.demo.entity.EquDetailsInfo;
 import com.orange.demo.entity.EquInfo;
 import com.orange.demo.service.EquDetailsInfoService;
 import com.orange.demo.service.EquInfoService;
 import com.orange.demo.utils.FileUtils;
-import com.orange.demo.utils.PropertiesUtil;
 import com.orange.demo.utils.SpringJobBeanFactory;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.monitor.FileAlterationListenerAdaptor;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -18,6 +17,7 @@ import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author: Li ZhiCheng
@@ -29,11 +29,13 @@ public class FileListener extends FileAlterationListenerAdaptor {
 
     @Override
     public void onDirectoryCreate(File directory) {
+        //获取service
         EquInfoService equInfoService = SpringJobBeanFactory.getBean(EquInfoService.class);
         EquDetailsInfoService equDetailsInfoService = SpringJobBeanFactory.getBean(EquDetailsInfoService.class);
-        //文件名
-        String fileName = PropertiesUtil.getValue("fileName");
-        String storePath = PropertiesUtil.getValue("storePath");
+        //获取输入框的值
+        Map<String, Object> map = DataHelper.getMap();
+        String storePath = (String) map.get("storePath");
+        String fileName = (String) map.get("fileName");
         //设备名字
         String eName = directory.getParentFile().getName();
         EquInfo equInfo = new EquInfo();
@@ -59,23 +61,25 @@ public class FileListener extends FileAlterationListenerAdaptor {
         //保存到数据库
         LambdaQueryWrapper<EquInfo> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(EquInfo::getEName, eName);
-        EquInfo equInfo1 = equInfoService.getOne(wrapper);
-        List<EquDetailsInfo> infos = equInfo.getList();
-        if (equInfo1 == null) {
-            equInfoService.save(equInfo);
-            if (infos.size() > 0) {
-                for (EquDetailsInfo info : infos) {
-                    info.setEId(equInfo.getId());
-                    info.setCreateTime(new Date());
-                    equDetailsInfoService.save(info);
+        if(equInfoService != null && equDetailsInfoService != null){
+            EquInfo equInfo1 = equInfoService.getOne(wrapper);
+            List<EquDetailsInfo> infos = equInfo.getList();
+            if (equInfo1 == null) {
+                equInfoService.save(equInfo);
+                if (infos.size() > 0) {
+                    for (EquDetailsInfo info : infos) {
+                        info.setEId(equInfo.getId());
+                        info.setCreateTime(new Date());
+                        equDetailsInfoService.save(info);
+                    }
                 }
-            }
-        } else {
-            if (infos.size() > 0) {
-                for (EquDetailsInfo info : infos) {
-                    info.setEId(equInfo1.getId());
-                    info.setCreateTime(new Date());
-                    equDetailsInfoService.save(info);
+            } else {
+                if (infos.size() > 0) {
+                    for (EquDetailsInfo info : infos) {
+                        info.setEId(equInfo1.getId());
+                        info.setCreateTime(new Date());
+                        equDetailsInfoService.save(info);
+                    }
                 }
             }
         }
