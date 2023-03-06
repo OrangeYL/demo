@@ -69,22 +69,26 @@ public class PrimaryStageController implements Initializable {
             file.forEach(item -> {
                 FileMonitor fileMonitor = new FileMonitor(1000);
                 fileMonitor.monitor(item.getAbsolutePath(), new FileListener());
-                Alert alert = null;
                 try {
                     fileMonitor.start();
-                    alert = new Alert(Alert.AlertType.INFORMATION);
-                    alert.setTitle("提示");
-                    alert.setHeaderText("提示");
-                    alert.setContentText("创建成功！");
-                    alert.show();
                 } catch (Exception exception) {
                     exception.printStackTrace();
-                }finally {
-                    if(null != alert){
-                        alert.close();
-                    }
                 }
             });
+            Alert alert = null;
+            try {
+                alert = new Alert(Alert.AlertType.INFORMATION);
+                alert.titleProperty().set("提示");
+                alert.headerTextProperty().set("提示");
+                alert.contentTextProperty().set("创建成功！");
+                alert.showAndWait();
+            }catch (Exception exception) {
+                exception.printStackTrace();
+            }finally {
+                if(null != alert){
+                    alert.close();
+                }
+            }
         });
         //触发扫描一次按钮
         scanBt.setOnAction(e ->{
@@ -158,16 +162,16 @@ public class PrimaryStageController implements Initializable {
                     }
                 }
             });
-            Alert alert = null;
+            Alert alert =null;
             try {
                 alert = new Alert(Alert.AlertType.INFORMATION);
-                alert.setTitle("提示");
-                alert.setHeaderText("提示");
-                alert.setContentText("扫描结束！");
-                alert.show();
+                alert.titleProperty().set("提示");
+                alert.headerTextProperty().set("提示");
+                alert.contentTextProperty().set("扫描结束！");
+                alert.showAndWait();
             } catch (Exception exception) {
                 exception.printStackTrace();
-            }finally {
+            } finally {
                 if(null != alert){
                     alert.close();
                 }
