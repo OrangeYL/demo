@@ -9,39 +9,36 @@
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.RowConstraints?>
 
-<BorderPane id="mainBorderPane" minHeight="300.0" minWidth="400.0" stylesheets="/css/PrimaryStage.css"
-            xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="com.orange.demo.controller.PrimaryStageController">
+<BorderPane id="mainBorderPane" minHeight="300.0" minWidth="400.0" stylesheets="/css/PrimaryStage.css" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.orange.demo.controller.PrimaryStageController">
     <center>
         <GridPane BorderPane.alignment="CENTER">
             <columnConstraints>
-                <ColumnConstraints hgrow="SOMETIMES" maxWidth="94.6666259765625" minWidth="10.0"
-                                   prefWidth="64.6666259765625"/>
-                <ColumnConstraints hgrow="SOMETIMES" maxWidth="300.0" minWidth="10.0" prefWidth="135.3333740234375"/>
+                <ColumnConstraints hgrow="SOMETIMES" maxWidth="94.6666259765625" minWidth="10.0" prefWidth="64.6666259765625" />
+                <ColumnConstraints hgrow="SOMETIMES" maxWidth="300.0" minWidth="10.0" prefWidth="135.3333740234375" />
             </columnConstraints>
             <rowConstraints>
-                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
-                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
-                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
-                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
+                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
             </rowConstraints>
             <children>
-                <Label fx:id="pathLabel" text="文件路径："/>
-                <Label fx:id="storeLabel" text="存放路径：" GridPane.rowIndex="1"/>
-                <Label fx:id="fileNameLabel" text="文件名称：" GridPane.rowIndex="2"/>
-                <TextField fx:id="pathField" GridPane.columnIndex="1"/>
-                <TextField fx:id="storeField" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
-                <TextField fx:id="fileNameField" GridPane.columnIndex="1" GridPane.rowIndex="2"/>
-                <Button fx:id="sureBt" alignment="CENTER_RIGHT" contentDisplay="RIGHT" mnemonicParsing="false" text="确定"
-                        GridPane.columnIndex="1" GridPane.rowIndex="3"/>
+                <Label fx:id="pathLabel" text="文件路径：" />
+                <Label fx:id="storeLabel" text="存放路径：" GridPane.rowIndex="1" />
+                <Label fx:id="fileNameLabel" text="文件名称：" GridPane.rowIndex="2" />
+                <TextField fx:id="pathField" GridPane.columnIndex="1" />
+                <TextField fx:id="storeField" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                <TextField fx:id="fileNameField" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                <Button fx:id="sureBt" alignment="CENTER_RIGHT" contentDisplay="RIGHT" mnemonicParsing="false" text="创建监听" GridPane.rowIndex="3" />
+                <Button fx:id="scanBt" mnemonicParsing="false" text="扫描一次" GridPane.columnIndex="1" GridPane.rowIndex="3" />
             </children>
             <BorderPane.margin>
-                <Insets bottom="10.0" left="10.0" right="10.0" top="10.0"/>
+                <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
             </BorderPane.margin>
             <padding>
-                <Insets bottom="10.0" left="10.0" right="10.0" top="10.0"/>
+                <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
             </padding>
         </GridPane>
     </center>
 </BorderPane>
-

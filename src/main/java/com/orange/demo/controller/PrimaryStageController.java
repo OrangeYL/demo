@@ -1,6 +1,9 @@
 package com.orange.demo.controller;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.orange.demo.entity.DataHelper;
+import com.orange.demo.entity.EquDetailsInfo;
+import com.orange.demo.entity.EquInfo;
 import com.orange.demo.listener.FileListener;
 import com.orange.demo.service.EquDetailsInfoService;
 import com.orange.demo.service.EquInfoService;
@@ -9,13 +12,20 @@ import com.orange.demo.utils.FileUtils;
 import de.felixroske.jfxsupport.FXMLController;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.ResourceBundle;
 
@@ -25,6 +35,7 @@ import java.util.ResourceBundle;
  * @description:
  */
 @FXMLController
+@Slf4j
 public class PrimaryStageController implements Initializable {
     @FXML
     private TextField pathField;
@@ -34,15 +45,21 @@ public class PrimaryStageController implements Initializable {
     private TextField fileNameField;
     @FXML
     private Button sureBt;
+    @FXML
+    private Button scanBt;
+    @Autowired
+    private EquInfoService equInfoService;
+    @Autowired
+    private EquDetailsInfoService equDetailsInfoService;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+        //触发创建监听按钮
         sureBt.setOnAction(e -> {
             //得到输入框的值
             String path = pathField.getText();
             String storePath = storeField.getText();
             String fileName = fileNameField.getText();
-
             //存进Map里面，后续需要使用
             DataHelper.getMap().put("storePath",storePath);
             DataHelper.getMap().put("fileName",fileName);
@@ -52,13 +69,109 @@ public class PrimaryStageController implements Initializable {
             file.forEach(item -> {
                 FileMonitor fileMonitor = new FileMonitor(1000);
                 fileMonitor.monitor(item.getAbsolutePath(), new FileListener());
+                Alert alert = null;
                 try {
                     fileMonitor.start();
+                    alert = new Alert(Alert.AlertType.INFORMATION);
+                    alert.setTitle("提示");
+                    alert.setHeaderText("提示");
+                    alert.setContentText("创建成功！");
+                    alert.show();
                 } catch (Exception exception) {
                     exception.printStackTrace();
+                }finally {
+                    if(null != alert){
+                        alert.close();
+                    }
                 }
             });
-
+        });
+        //触发扫描一次按钮
+        scanBt.setOnAction(e ->{
+            //得到输入框的值
+            String path = pathField.getText();
+            String storePath = storeField.getText();
+            String fileName = fileNameField.getText();
+            //得到所有的设备文件夹
+            List<File> files = FileUtils.getFile(path);
+            if(files .size() <= 0){
+                return;
+            }
+            files.forEach(item ->{
+                //获取设备文件夹的子文件夹
+                List<File> list = FileUtils.getFile(item.getAbsolutePath());
+                if(list.size() <= 0){
+                    return;
+                }
+                List<EquInfo> equInfos = new ArrayList<>();
+                //设备名
+                String eName = item.getName();
+                list.forEach(data ->{
+                    EquInfo equInfo = new EquInfo();
+                    equInfo.setEName(eName);
+                    equInfo.setCreateTime(new Date());
+                    String filePath = "";
+                    if(fileName.contains(".txt")){
+                        filePath = data.getAbsolutePath()+"\\"+fileName;
+                    }else{
+                        filePath = data.getAbsolutePath() + "\\" + fileName + ".txt";
+                    }
+                    File file = new File(filePath);
+                    InputStream inputStream = null;
+                    try {
+                        inputStream = new FileInputStream(file);
+                        equInfo = FileUtils.readTxt(inputStream,equInfo);
+                        equInfos.add(equInfo);
+                        //移动文件夹（先复制再删除）
+                        FileUtils.moveFolder(eName,data.getAbsolutePath(),storePath);
+                    } catch (FileNotFoundException exception) {
+                        log.info("文件不存在！");
+                    }
+                });
+                if(equInfos.size() > 0){
+                    for(EquInfo info : equInfos){
+                        //保存到数据库
+                        LambdaQueryWrapper<EquInfo> wrapper = new LambdaQueryWrapper<>();
+                        wrapper.eq(EquInfo::getEName, eName);
+                        if(equInfoService != null && equDetailsInfoService != null){
+                            EquInfo equInfo1 = equInfoService.getOne(wrapper);
+                            List<EquDetailsInfo> infos = info.getList();
+                            if (equInfo1 == null) {
+                                equInfoService.save(info);
+                                if (infos.size() > 0) {
+                                    for (EquDetailsInfo equDetailsInfo : infos) {
+                                        equDetailsInfo.setEId(info.getId());
+                                        equDetailsInfo.setCreateTime(new Date());
+                                        equDetailsInfoService.save(equDetailsInfo);
+                                    }
+                                }
+                            } else {
+                                if (infos.size() > 0) {
+                                    for (EquDetailsInfo equDetailsInfo : infos) {
+                                        equDetailsInfo.setEId(equInfo1.getId());
+                                        equDetailsInfo.setCreateTime(new Date());
+                                        equDetailsInfoService.save(equDetailsInfo);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+            Alert alert = null;
+            try {
+                alert = new Alert(Alert.AlertType.INFORMATION);
+                alert.setTitle("提示");
+                alert.setHeaderText("提示");
+                alert.setContentText("扫描结束！");
+                alert.show();
+            } catch (Exception exception) {
+                exception.printStackTrace();
+            }finally {
+                if(null != alert){
+                    alert.close();
+                }
+            }
         });
     }
 }
