@@ -25,8 +25,8 @@ public class EquDetailsInfo implements Serializable {
     @TableField("e_id")
     private String eId;
 
-    @TableField("e_type")
-    private String eType;
+    @TableField("machine_type")
+    private String machineType;
 
     @TableField("board_id")
     private String boardId;

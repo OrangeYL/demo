@@ -27,11 +27,13 @@
                 <Label fx:id="pathLabel" text="文件路径：" />
                 <Label fx:id="storeLabel" text="存放路径：" GridPane.rowIndex="1" />
                 <Label fx:id="fileNameLabel" text="文件名称：" GridPane.rowIndex="2" />
+                <Label fx:id="equTypeLabel" text="设备类型：" GridPane.rowIndex="3" />
                 <TextField fx:id="pathField" GridPane.columnIndex="1" />
                 <TextField fx:id="storeField" GridPane.columnIndex="1" GridPane.rowIndex="1" />
                 <TextField fx:id="fileNameField" GridPane.columnIndex="1" GridPane.rowIndex="2" />
-                <Button fx:id="sureBt" alignment="CENTER_RIGHT" contentDisplay="RIGHT" mnemonicParsing="false" text="创建监听" GridPane.rowIndex="3" />
-                <Button fx:id="scanBt" mnemonicParsing="false" text="扫描一次" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+                <TextField fx:id="equTypeField" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+                <Button fx:id="sureBt" alignment="CENTER_RIGHT" contentDisplay="RIGHT" mnemonicParsing="false" text="创建监听" GridPane.rowIndex="4" />
+                <Button fx:id="scanBt" mnemonicParsing="false" text="扫描一次" GridPane.columnIndex="1" GridPane.rowIndex="4" />
             </children>
             <BorderPane.margin>
                 <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />

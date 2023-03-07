@@ -1,11 +1,20 @@
 package com.orange.demo.utils;
 
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
+import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
+import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.orange.demo.entity.EquDetailsInfo;
 import com.orange.demo.entity.EquInfo;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.http.NameValuePair;
+import org.apache.http.message.BasicNameValuePair;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
 import java.io.*;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
 
@@ -15,11 +24,16 @@ import java.util.Objects;
  * @description: 文件工具类
  */
 @Slf4j
+@Component
 public class FileUtils {
 
-    public static EquInfo readTxt(InputStream is, EquInfo equInfo){
+    @Value(value = "${elmUrl}")
+    private String elmUrl;
+
+    public EquInfo readTxt(InputStream is, EquInfo equInfo,String equType){
         //后续是调用ELM接口得到对应的padNo
-        String[] padNos = {"534","535"};
+        List<NameValuePair> list = new LinkedList<>();
+        List<String> padNos = new ArrayList<>();
         InputStreamReader reader = null;
         BufferedReader bufferedReader = null;
         //设备详细数据
@@ -29,13 +43,35 @@ public class FileUtils {
             bufferedReader = new BufferedReader(reader);
             int index = 1;
             equDetailsInfos = new ArrayList<>();
-            //第一行只取设备型号
+            //第一行只取机型
             String line = bufferedReader.readLine();
-            //设备类型
-            String eType = null;
+            //机型
+            String machineType = null;
             if(line != null){
                 String[] strings = line.split(",");
-                eType = strings[0];
+                String s = strings[0];
+                String[] strs = s.split("\\|");
+                machineType = strs[strs.length-1];
+            }
+            BasicNameValuePair pair1 = new BasicNameValuePair("equType",equType);
+            BasicNameValuePair pair2 = new BasicNameValuePair("machineType", machineType);
+            list.add(pair1);
+            list.add(pair2);
+            String result = HttpUtil.doGetJson(elmUrl, list);
+            if(StringUtils.isNotBlank(result)){
+                JSONObject json = JSONObject.parseObject(result);
+                if("true".equals(json.getString("success"))){
+                    JSONArray array = json.getJSONArray("result");
+                    if(CollectionUtils.isNotEmpty(array)){
+                        for(Object jsonObject : array){
+                            JSONObject data = (JSONObject) jsonObject;
+                            String padNo = data.getString("padNo");
+                            if(StringUtils.isNotBlank(padNo)){
+                                padNos.add(padNo);
+                            }
+                        }
+                    }
+                }
             }
             while((line = bufferedReader.readLine()) != null){
                 //第二行列名跳过
@@ -48,9 +84,9 @@ public class FileUtils {
                 String[] data = line.split(",");
                 //跟ELM接口得到的数据进行比较，得到需要读取的行
                 String padNo = data[3];
-                for(int i = 0;i < padNos.length;i++){
-                    if(padNo.equals(padNos[i])){
-                        equDetailsInfo.setEType(eType);
+                for(int i = 0;i < padNos.size();i++){
+                    if(padNo.equals(padNos.get(i))){
+                        equDetailsInfo.setMachineType(machineType);
                         equDetailsInfo.setBoardId(data[0]);
                         equDetailsInfo.setPadNo(data[3]);
                         equDetailsInfo.setInspStTime(data[8]);

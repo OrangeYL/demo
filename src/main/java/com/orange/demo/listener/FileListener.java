@@ -32,16 +32,16 @@ public class FileListener extends FileAlterationListenerAdaptor {
         //获取service
         EquInfoService equInfoService = SpringJobBeanFactory.getBean(EquInfoService.class);
         EquDetailsInfoService equDetailsInfoService = SpringJobBeanFactory.getBean(EquDetailsInfoService.class);
+        FileUtils fileUtils = SpringJobBeanFactory.getBean(FileUtils.class);
         //获取输入框的值
         Map<String, Object> map = DataHelper.getMap();
         String storePath = (String) map.get("storePath");
         String fileName = (String) map.get("fileName");
+        String equType = (String) map.get("equType");
         //设备名字
         String eName = directory.getParentFile().getName();
         EquInfo equInfo = new EquInfo();
         equInfo.setEName(eName);
-        equInfo.setCreateTime(new Date());
-
         String filePath = "";
         if(fileName.contains(".txt")){
             filePath = directory.getAbsolutePath()+"\\"+fileName;
@@ -52,7 +52,9 @@ public class FileListener extends FileAlterationListenerAdaptor {
         InputStream inputStream = null;
         try {
             inputStream = new FileInputStream(file);
-            equInfo = FileUtils.readTxt(inputStream,equInfo);
+            if("SPI".equals(equType)){
+                equInfo = fileUtils.readTxt(inputStream,equInfo,equType);
+            }
             //移动文件夹（先复制再删除）
             FileUtils.moveFolder(eName,directory.getAbsolutePath(),storePath);
         } catch (FileNotFoundException exception) {
@@ -65,6 +67,7 @@ public class FileListener extends FileAlterationListenerAdaptor {
             EquInfo equInfo1 = equInfoService.getOne(wrapper);
             List<EquDetailsInfo> infos = equInfo.getList();
             if (equInfo1 == null) {
+                equInfo.setCreateTime(new Date());
                 equInfoService.save(equInfo);
                 if (infos.size() > 0) {
                     for (EquDetailsInfo info : infos) {

@@ -44,6 +44,8 @@ public class PrimaryStageController implements Initializable {
     @FXML
     private TextField fileNameField;
     @FXML
+    private TextField equTypeField;
+    @FXML
     private Button sureBt;
     @FXML
     private Button scanBt;
@@ -51,6 +53,8 @@ public class PrimaryStageController implements Initializable {
     private EquInfoService equInfoService;
     @Autowired
     private EquDetailsInfoService equDetailsInfoService;
+    @Autowired
+    private FileUtils fileUtils;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -60,9 +64,11 @@ public class PrimaryStageController implements Initializable {
             String path = pathField.getText();
             String storePath = storeField.getText();
             String fileName = fileNameField.getText();
+            String equType = equTypeField.getText();
             //存进Map里面，后续需要使用
             DataHelper.getMap().put("storePath",storePath);
             DataHelper.getMap().put("fileName",fileName);
+            DataHelper.getMap().put("equType", equType);
             //得到所有的设备文件夹
             List<File> file = FileUtils.getFile(path);
             //遍历设备文件夹并创建监听
@@ -96,6 +102,7 @@ public class PrimaryStageController implements Initializable {
             String path = pathField.getText();
             String storePath = storeField.getText();
             String fileName = fileNameField.getText();
+            String equType = equTypeField.getText();
             //得到所有的设备文件夹
             List<File> files = FileUtils.getFile(path);
             if(files .size() <= 0){
@@ -124,7 +131,7 @@ public class PrimaryStageController implements Initializable {
                     InputStream inputStream = null;
                     try {
                         inputStream = new FileInputStream(file);
-                        equInfo = FileUtils.readTxt(inputStream,equInfo);
+                        equInfo = fileUtils.readTxt(inputStream,equInfo,equType);
                         equInfos.add(equInfo);
                         //移动文件夹（先复制再删除）
                         FileUtils.moveFolder(eName,data.getAbsolutePath(),storePath);
