@@ -5,7 +5,6 @@ import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.orange.demo.entity.EquDetailsInfo;
-import com.orange.demo.entity.EquInfo;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
@@ -30,10 +29,11 @@ public class FileUtils {
     @Value(value = "${elmUrl}")
     private String elmUrl;
 
-    public EquInfo readTxt(InputStream is, EquInfo equInfo,String equType){
-        //后续是调用ELM接口得到对应的padNo
+    public List<EquDetailsInfo> readTxt(InputStream is, String equType){
+        //调用ELM接口得到对应的padNo
         List<NameValuePair> list = new LinkedList<>();
         List<String> padNos = new ArrayList<>();
+
         InputStreamReader reader = null;
         BufferedReader bufferedReader = null;
         //设备详细数据
@@ -53,6 +53,7 @@ public class FileUtils {
                 String[] strs = s.split("\\|");
                 machineType = strs[strs.length-1];
             }
+            //根据设备类型与机型调用ELM接口得到padNo
             BasicNameValuePair pair1 = new BasicNameValuePair("equType",equType);
             BasicNameValuePair pair2 = new BasicNameValuePair("machineType", machineType);
             list.add(pair1);
@@ -100,15 +101,17 @@ public class FileUtils {
                     }
                 }
             }
-            equInfo.setList(equDetailsInfos);
             bufferedReader.close();
             reader.close();
             is.close();
         } catch (Exception e) {
             log.info("文件读取错误！");
         }
-        return equInfo;
+        return equDetailsInfos;
     }
+    /**
+     *获取文件夹
+     **/
     public static List<File> getFile(String path){
         if(path == null || path.equals("")){
             return new ArrayList<>();

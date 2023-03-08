@@ -1,10 +1,9 @@
 package com.orange.demo.listener;
 
+import com.alibaba.fastjson.JSONObject;
 import com.orange.demo.entity.DataHelper;
-import com.orange.demo.entity.EquInfo;
-import com.orange.demo.service.EquInfoService;
-import com.orange.demo.utils.FileUtils;
-import com.orange.demo.utils.SpringJobBeanFactory;
+import com.orange.demo.entity.EquDetailsInfo;
+import com.orange.demo.utils.*;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.monitor.FileAlterationListenerAdaptor;
 
@@ -12,7 +11,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author: Li ZhiCheng
@@ -24,8 +23,7 @@ public class FileListener extends FileAlterationListenerAdaptor {
 
     @Override
     public void onDirectoryCreate(File directory) {
-        //获取service
-        EquInfoService equInfoService = SpringJobBeanFactory.getBean(EquInfoService.class);
+        //获取实例
         FileUtils fileUtils = SpringJobBeanFactory.getBean(FileUtils.class);
         //获取输入框的值
         Map<String, Object> map = DataHelper.getMap();
@@ -34,8 +32,7 @@ public class FileListener extends FileAlterationListenerAdaptor {
         String equType = (String) map.get("equType");
         //设备名字
         String eName = directory.getParentFile().getName();
-        EquInfo equInfo = new EquInfo();
-        equInfo.setEName(eName);
+        List<EquDetailsInfo> list = new ArrayList<>();
         String filePath = "";
         if(fileName.contains(".txt")){
             filePath = directory.getAbsolutePath()+"\\"+fileName;
@@ -46,17 +43,18 @@ public class FileListener extends FileAlterationListenerAdaptor {
         InputStream inputStream = null;
         try {
             inputStream = new FileInputStream(file);
-            if("SPI".equals(equType)){
-                equInfo = fileUtils.readTxt(inputStream,equInfo,equType);
+            if("SPI".equals(equType) && fileUtils != null){
+                list = fileUtils.readTxt(inputStream,equType);
             }
             //移动文件夹（先复制再删除）
             FileUtils.moveFolder(eName,directory.getAbsolutePath(),storePath);
+            //发送消息存进时序库
+            JSONObject jsonObject = JsonUtils.convertToJson(list,eName);
+            MqttUtils.send(eName,jsonObject);
         } catch (FileNotFoundException exception) {
             log.info("文件不存在！");
         }
-        //保存到数据库
-        if(equInfoService != null){
-            equInfoService.saveEntity(equInfo,eName);
-        }
     }
+
+
 }

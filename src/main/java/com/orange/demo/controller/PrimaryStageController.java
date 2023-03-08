@@ -1,14 +1,13 @@
 package com.orange.demo.controller;
 
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.alibaba.fastjson.JSONObject;
 import com.orange.demo.entity.DataHelper;
 import com.orange.demo.entity.EquDetailsInfo;
-import com.orange.demo.entity.EquInfo;
 import com.orange.demo.listener.FileListener;
-import com.orange.demo.service.EquDetailsInfoService;
-import com.orange.demo.service.EquInfoService;
 import com.orange.demo.utils.FileMonitor;
 import com.orange.demo.utils.FileUtils;
+import com.orange.demo.utils.JsonUtils;
+import com.orange.demo.utils.MqttUtils;
 import de.felixroske.jfxsupport.FXMLController;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -26,7 +25,6 @@ import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.ResourceBundle;
 
@@ -50,10 +48,6 @@ public class PrimaryStageController implements Initializable {
     private Button sureBt;
     @FXML
     private Button scanBt;
-    @Autowired
-    private EquInfoService equInfoService;
-    @Autowired
-    private EquDetailsInfoService equDetailsInfoService;
     @Autowired
     private FileUtils fileUtils;
 
@@ -100,7 +94,6 @@ public class PrimaryStageController implements Initializable {
                 }
             }
         });
-
         //触发扫描一次按钮
         scanBt.setOnAction(e ->{
             //得到输入框的值
@@ -120,13 +113,10 @@ public class PrimaryStageController implements Initializable {
                 if(list.size() <= 0){
                     return;
                 }
-                List<EquInfo> equInfos = new ArrayList<>();
-                //设备名
+                //设备名称
                 String eName = item.getName();
                 list.forEach(data ->{
-                    EquInfo equInfo = new EquInfo();
-                    equInfo.setEName(eName);
-                    equInfo.setCreateTime(new Date());
+                    List<EquDetailsInfo> equDetailsInfos = new ArrayList<>();
                     String filePath = "";
                     if(fileName.contains(".txt")){
                         filePath = data.getAbsolutePath()+"\\"+fileName;
@@ -138,21 +128,16 @@ public class PrimaryStageController implements Initializable {
                     try {
                         inputStream = new FileInputStream(file);
                         if("SPI".equals(equType)){
-                            equInfo = fileUtils.readTxt(inputStream,equInfo,equType);
+                           equDetailsInfos = fileUtils.readTxt(inputStream, equType);
                         }
-                        equInfos.add(equInfo);
                         //移动文件夹（先复制再删除）
                         FileUtils.moveFolder(eName,data.getAbsolutePath(),storePath);
+                        JSONObject jsonObject = JsonUtils.convertToJson(equDetailsInfos, eName);
+                        MqttUtils.send(eName,jsonObject);
                     } catch (FileNotFoundException exception) {
                         log.info("文件不存在！");
                     }
                 });
-                //保存到数据库
-                if(equInfos.size() > 0){
-                    for(EquInfo info : equInfos){
-                       equInfoService.saveEntity(info,eName);
-                    }
-                }
             });
             //增加窗口提示
             Alert alert =null;
