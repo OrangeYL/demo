@@ -28,7 +28,7 @@ public class MqttFactory {
      *   单例模式, 存在则返回, 不存在则初始化
      */
     public static MqttClient getInstance(String clientId) {
-        if (client == null) {
+        if (client == null || !clientId.equals(client.getClientId())) {
             init(clientId);
         }
         return client;
