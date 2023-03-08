@@ -66,10 +66,12 @@ public class PrimaryStageController implements Initializable {
             String storePath = storeField.getText().trim();
             String fileName = fileNameField.getText().trim();
             String equType = equTypeBox.getValue();
+
             //存进Map里面，后续需要使用
             DataHelper.getMap().put("storePath",storePath);
             DataHelper.getMap().put("fileName",fileName);
             DataHelper.getMap().put("equType", equType);
+
             //得到所有的设备文件夹
             List<File> file = FileUtils.getFile(path);
             //遍历设备文件夹并创建监听
@@ -82,6 +84,7 @@ public class PrimaryStageController implements Initializable {
                     exception.printStackTrace();
                 }
             });
+            //增加窗口提示
             Alert alert = null;
             try {
                 alert = new Alert(Alert.AlertType.INFORMATION);
@@ -97,6 +100,7 @@ public class PrimaryStageController implements Initializable {
                 }
             }
         });
+
         //触发扫描一次按钮
         scanBt.setOnAction(e ->{
             //得到输入框的值
@@ -104,6 +108,7 @@ public class PrimaryStageController implements Initializable {
             String storePath = storeField.getText().trim();
             String fileName = fileNameField.getText().trim();
             String equType = equTypeBox.getValue();
+
             //得到所有的设备文件夹
             List<File> files = FileUtils.getFile(path);
             if(files .size() <= 0){
@@ -142,36 +147,14 @@ public class PrimaryStageController implements Initializable {
                         log.info("文件不存在！");
                     }
                 });
+                //保存到数据库
                 if(equInfos.size() > 0){
                     for(EquInfo info : equInfos){
-                        //保存到数据库
-                        LambdaQueryWrapper<EquInfo> wrapper = new LambdaQueryWrapper<>();
-                        wrapper.eq(EquInfo::getEName, eName);
-                        if(equInfoService != null && equDetailsInfoService != null){
-                            EquInfo equInfo1 = equInfoService.getOne(wrapper);
-                            List<EquDetailsInfo> infos = info.getList();
-                            if (equInfo1 == null) {
-                                equInfoService.save(info);
-                                if (infos.size() > 0) {
-                                    for (EquDetailsInfo equDetailsInfo : infos) {
-                                        equDetailsInfo.setEId(info.getId());
-                                        equDetailsInfo.setCreateTime(new Date());
-                                        equDetailsInfoService.save(equDetailsInfo);
-                                    }
-                                }
-                            } else {
-                                if (infos.size() > 0) {
-                                    for (EquDetailsInfo equDetailsInfo : infos) {
-                                        equDetailsInfo.setEId(equInfo1.getId());
-                                        equDetailsInfo.setCreateTime(new Date());
-                                        equDetailsInfoService.save(equDetailsInfo);
-                                    }
-                                }
-                            }
-                        }
+                       equInfoService.saveEntity(info,eName);
                     }
                 }
             });
+            //增加窗口提示
             Alert alert =null;
             try {
                 alert = new Alert(Alert.AlertType.INFORMATION);

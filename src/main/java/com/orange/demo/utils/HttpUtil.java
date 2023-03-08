@@ -1,7 +1,5 @@
 package com.orange.demo.utils;
 
-import com.alibaba.fastjson.JSONObject;
-import com.sun.javafx.fxml.builder.URLBuilder;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
@@ -15,7 +13,6 @@ import org.apache.http.util.EntityUtils;
 import org.springframework.beans.factory.annotation.Value;
 
 import java.io.IOException;
-import java.net.URISyntaxException;
 import java.util.List;
 
 /**

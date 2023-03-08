@@ -9,4 +9,6 @@ import com.orange.demo.entity.EquInfo;
  * @description:
  */
 public interface EquInfoService extends IService<EquInfo> {
+
+    public void saveEntity(EquInfo equInfo,String eName);
 }

@@ -1,10 +1,7 @@
 package com.orange.demo.listener;
 
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.orange.demo.entity.DataHelper;
-import com.orange.demo.entity.EquDetailsInfo;
 import com.orange.demo.entity.EquInfo;
-import com.orange.demo.service.EquDetailsInfoService;
 import com.orange.demo.service.EquInfoService;
 import com.orange.demo.utils.FileUtils;
 import com.orange.demo.utils.SpringJobBeanFactory;
@@ -15,8 +12,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
-import java.util.Date;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -31,7 +26,6 @@ public class FileListener extends FileAlterationListenerAdaptor {
     public void onDirectoryCreate(File directory) {
         //获取service
         EquInfoService equInfoService = SpringJobBeanFactory.getBean(EquInfoService.class);
-        EquDetailsInfoService equDetailsInfoService = SpringJobBeanFactory.getBean(EquDetailsInfoService.class);
         FileUtils fileUtils = SpringJobBeanFactory.getBean(FileUtils.class);
         //获取输入框的值
         Map<String, Object> map = DataHelper.getMap();
@@ -61,30 +55,8 @@ public class FileListener extends FileAlterationListenerAdaptor {
             log.info("文件不存在！");
         }
         //保存到数据库
-        LambdaQueryWrapper<EquInfo> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(EquInfo::getEName, eName);
-        if(equInfoService != null && equDetailsInfoService != null){
-            EquInfo equInfo1 = equInfoService.getOne(wrapper);
-            List<EquDetailsInfo> infos = equInfo.getList();
-            if (equInfo1 == null) {
-                equInfo.setCreateTime(new Date());
-                equInfoService.save(equInfo);
-                if (infos.size() > 0) {
-                    for (EquDetailsInfo info : infos) {
-                        info.setEId(equInfo.getId());
-                        info.setCreateTime(new Date());
-                        equDetailsInfoService.save(info);
-                    }
-                }
-            } else {
-                if (infos.size() > 0) {
-                    for (EquDetailsInfo info : infos) {
-                        info.setEId(equInfo1.getId());
-                        info.setCreateTime(new Date());
-                        equDetailsInfoService.save(info);
-                    }
-                }
-            }
+        if(equInfoService != null){
+            equInfoService.saveEntity(equInfo,eName);
         }
     }
 }
