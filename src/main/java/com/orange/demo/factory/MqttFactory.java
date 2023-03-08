@@ -16,6 +16,10 @@ public class MqttFactory {
 
     //MQTT地址
     private final static String HOST = "tcp://10.219.235.51:1883";
+    //用户名
+    private final static String USERNAME = "admin";
+    //密码
+    private final static String PASSWORD = "public";
 
     private static MqttClient client;
 
@@ -35,11 +39,11 @@ public class MqttFactory {
      */
     public static void init(String clientId) {
         try {
-            client = new MqttClient(HOST, clientId,new MemoryPersistence());
+            client = new MqttClient(HOST,clientId,new MemoryPersistence());
             // MQTT配置对象
             MqttConnectOptions options = new MqttConnectOptions();
-            options.setUserName(clientId);
-            options.setPassword(clientId.toCharArray());
+            options.setUserName(USERNAME);
+            options.setPassword(PASSWORD.toCharArray());
             options.setAutomaticReconnect(true);
             if (!client.isConnected()) {
                 client.connect(options);
