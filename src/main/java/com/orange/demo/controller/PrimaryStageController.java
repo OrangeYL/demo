@@ -14,6 +14,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.TextField;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,7 +45,7 @@ public class PrimaryStageController implements Initializable {
     @FXML
     private TextField fileNameField;
     @FXML
-    private TextField equTypeField;
+    private ComboBox<String> equTypeBox;
     @FXML
     private Button sureBt;
     @FXML
@@ -61,10 +62,10 @@ public class PrimaryStageController implements Initializable {
         //触发创建监听按钮
         sureBt.setOnAction(e -> {
             //得到输入框的值
-            String path = pathField.getText();
-            String storePath = storeField.getText();
-            String fileName = fileNameField.getText();
-            String equType = equTypeField.getText();
+            String path = pathField.getText().trim();
+            String storePath = storeField.getText().trim();
+            String fileName = fileNameField.getText().trim();
+            String equType = equTypeBox.getValue();
             //存进Map里面，后续需要使用
             DataHelper.getMap().put("storePath",storePath);
             DataHelper.getMap().put("fileName",fileName);
@@ -99,10 +100,10 @@ public class PrimaryStageController implements Initializable {
         //触发扫描一次按钮
         scanBt.setOnAction(e ->{
             //得到输入框的值
-            String path = pathField.getText();
-            String storePath = storeField.getText();
-            String fileName = fileNameField.getText();
-            String equType = equTypeField.getText();
+            String path = pathField.getText().trim();
+            String storePath = storeField.getText().trim();
+            String fileName = fileNameField.getText().trim();
+            String equType = equTypeBox.getValue();
             //得到所有的设备文件夹
             List<File> files = FileUtils.getFile(path);
             if(files .size() <= 0){
@@ -131,7 +132,9 @@ public class PrimaryStageController implements Initializable {
                     InputStream inputStream = null;
                     try {
                         inputStream = new FileInputStream(file);
-                        equInfo = fileUtils.readTxt(inputStream,equInfo,equType);
+                        if("SPI".equals(equType)){
+                            equInfo = fileUtils.readTxt(inputStream,equInfo,equType);
+                        }
                         equInfos.add(equInfo);
                         //移动文件夹（先复制再删除）
                         FileUtils.moveFolder(eName,data.getAbsolutePath(),storePath);

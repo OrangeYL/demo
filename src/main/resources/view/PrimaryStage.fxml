@@ -2,6 +2,7 @@
 
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ChoiceBox?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.BorderPane?>
@@ -9,6 +10,9 @@
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.RowConstraints?>
 
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.collections.FXCollections?>
+<?import java.lang.String?>
 <BorderPane id="mainBorderPane" minHeight="300.0" minWidth="400.0" stylesheets="/css/PrimaryStage.css" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.orange.demo.controller.PrimaryStageController">
     <center>
         <GridPane BorderPane.alignment="CENTER">
@@ -31,7 +35,16 @@
                 <TextField fx:id="pathField" GridPane.columnIndex="1" />
                 <TextField fx:id="storeField" GridPane.columnIndex="1" GridPane.rowIndex="1" />
                 <TextField fx:id="fileNameField" GridPane.columnIndex="1" GridPane.rowIndex="2" />
-                <TextField fx:id="equTypeField" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+                <ComboBox fx:id="equTypeBox" prefHeight="23.0" prefWidth="262.0" GridPane.columnIndex="1" GridPane.rowIndex="3" >
+                    <items>
+                        <FXCollections fx:factory="observableArrayList">
+                            <String fx:value="SPI"/>
+                            <String fx:value="222"/>
+                            <String fx:value="333"/>
+                        </FXCollections>
+                    </items>
+                </ComboBox>
+
                 <Button fx:id="sureBt" alignment="CENTER_RIGHT" contentDisplay="RIGHT" mnemonicParsing="false" text="创建监听" GridPane.rowIndex="4" />
                 <Button fx:id="scanBt" mnemonicParsing="false" text="扫描一次" GridPane.columnIndex="1" GridPane.rowIndex="4" />
             </children>
