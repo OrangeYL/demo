@@ -25,6 +25,10 @@ public class FileListener extends FileAlterationListenerAdaptor {
     public void onDirectoryCreate(File directory) {
         //获取实例
         FileUtils fileUtils = SpringJobBeanFactory.getBean(FileUtils.class);
+        if(fileUtils == null){
+            log.info("监控文件夹:{},出错,原因:fileUtils为空！",directory.getName());
+            return;
+        }
         //获取输入框的值
         Map<String, Object> map = DataHelper.getMap();
         String storePath = (String) map.get("storePath");
@@ -43,7 +47,7 @@ public class FileListener extends FileAlterationListenerAdaptor {
         InputStream inputStream = null;
         try {
             inputStream = new FileInputStream(file);
-            if("SPI".equals(equType) && fileUtils != null){
+            if("SPI".equals(equType)){
                 list = fileUtils.readTxt(inputStream,equType);
             }
             //移动文件夹（先复制再删除）

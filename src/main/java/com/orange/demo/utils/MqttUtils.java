@@ -35,9 +35,9 @@ public class MqttUtils {
             client.publish(TOPIC, new MqttMessage(json.getBytes(StandardCharsets.UTF_8)));
             log.info("消息发送成功，clientId:{},topic:{}",clientId,TOPIC);
         } catch (JsonProcessingException e) {
-            log.info(String.format("MQTT: 主题[%s]发送消息转换json失败", TOPIC));
+            log.info(String.format("MQTT: 主题[%s]发送消息转换json失败，原因：[%s]", TOPIC,e.toString()));
         } catch (MqttException e) {
-            log.info(String.format("MQTT: 主题[%s]发送消息失败", TOPIC));
+            log.info(String.format("MQTT: 主题[%s]发送消息失败,原因：[%s]", TOPIC,e.toString()));
         }
     }
 

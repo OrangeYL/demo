@@ -1,5 +1,6 @@
 package com.orange.demo.utils;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
@@ -20,6 +21,7 @@ import java.util.List;
  * @create: 2023-03-2023/3/6 17:12
  * @description:
  */
+@Slf4j
 public class HttpUtil {
 
     @Value(value = "${elmUrl}")
@@ -91,6 +93,7 @@ public class HttpUtil {
             resultString = EntityUtils.toString(response.getEntity(),"utf-8");
         } catch (Exception e) {
             e.printStackTrace();
+            log.info("调用ELM接口出错,原因:{}",e.toString());
         }finally {
             try {
                 if(response!=null){
@@ -98,6 +101,7 @@ public class HttpUtil {
                 }
             } catch (IOException e) {
                 e.printStackTrace();
+                log.info("关闭response异常，原因:{}",e.toString());
             }
         }
         return resultString;

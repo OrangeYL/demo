@@ -17,6 +17,7 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.control.TextField;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.StringUtils;
 
 
 import java.io.File;
@@ -68,13 +69,19 @@ public class PrimaryStageController implements Initializable {
 
             //得到所有的设备文件夹
             List<File> file = FileUtils.getFile(path);
+            if(file.size() <= 0){
+                log.info("监控路径："+path+"下，没有设备文件夹");
+                return;
+            }
             //遍历设备文件夹并创建监听
             file.forEach(item -> {
                 FileMonitor fileMonitor = new FileMonitor(1000);
                 fileMonitor.monitor(item.getAbsolutePath(), new FileListener());
                 try {
                     fileMonitor.start();
+                    log.info("文件夹："+item.getName()+"，创建监听成功!");
                 } catch (Exception exception) {
+                    log.info("文件夹："+item.getName()+"，创建监听失败!原因："+exception.toString());
                     exception.printStackTrace();
                 }
             });
@@ -83,7 +90,6 @@ public class PrimaryStageController implements Initializable {
             try {
                 alert = new Alert(Alert.AlertType.INFORMATION);
                 alert.titleProperty().set("提示");
-                alert.headerTextProperty().set("提示");
                 alert.contentTextProperty().set("创建成功！");
                 alert.showAndWait();
             }catch (Exception exception) {
@@ -105,6 +111,7 @@ public class PrimaryStageController implements Initializable {
             //得到所有的设备文件夹
             List<File> files = FileUtils.getFile(path);
             if(files .size() <= 0){
+                log.info("路径："+path+"下，没有设备文件夹!");
                 return;
             }
             files.forEach(item ->{
@@ -135,9 +142,10 @@ public class PrimaryStageController implements Initializable {
                         JSONObject jsonObject = JsonUtils.convertToJson(equDetailsInfos, eName);
                         MqttUtils.send(eName,jsonObject);
                     } catch (FileNotFoundException exception) {
-                        log.info("文件不存在！");
+                        log.info("文件不存在！原因："+e.toString());
                     }
                 });
+                log.info("扫描结束，路径:{}",path);
             });
             //增加窗口提示
             Alert alert =null;

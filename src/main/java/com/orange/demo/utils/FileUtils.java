@@ -74,6 +74,9 @@ public class FileUtils {
                     }
                 }
             }
+            if(padNos.size() <= 0){
+                log.info("没有查询到数据，padNos为空！");
+            }
             while((line = bufferedReader.readLine()) != null){
                 //第二行列名跳过
                 if(index == 1){
@@ -105,7 +108,7 @@ public class FileUtils {
             reader.close();
             is.close();
         } catch (Exception e) {
-            log.info("文件读取错误！");
+            log.info("文件读取错误！原因："+e.toString());
         }
         return equDetailsInfos;
     }
@@ -219,7 +222,7 @@ public class FileUtils {
                 }
             }
         } catch (Exception e) {
-            log.info("复制整个文件夹内容操作出错");
+            log.info("复制文件夹:"+eName+",内容操作出错，原因："+e);
         }
     }
     public static void moveFolder(String eName,String oldPath, String newPath) {

@@ -30,7 +30,7 @@ public class TestController {
         List<String> padNos = new ArrayList<>();
         List<NameValuePair> list = new LinkedList<>();
         BasicNameValuePair pair1 = new BasicNameValuePair("equType","SPI");
-        BasicNameValuePair pair2 = new BasicNameValuePair("machineType", "LF3082");
+        BasicNameValuePair pair2 = new BasicNameValuePair("machineType", "LF3083");
         list.add(pair1);
         list.add(pair2);
         String result = HttpUtil.doGetJson(elmUrl, list);

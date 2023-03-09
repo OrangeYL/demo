@@ -49,7 +49,7 @@ public class MqttFactory {
                 client.connect(options);
             }
         } catch (MqttException e) {
-            log.error("连接MQTT服务器--异常,clientId:{},exception:{}", clientId, e.toString());
+            log.info("连接MQTT服务器--异常,clientId:{},exception:{}", clientId, e.toString());
         }
     }
 }
