@@ -9,7 +9,7 @@ import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 /**
  * @author: Li ZhiCheng
  * @create: 2023-03-2023/3/8 14:12
- * @description:
+ * @description: Mqtt工厂
  */
 @Slf4j
 public class MqttFactory {

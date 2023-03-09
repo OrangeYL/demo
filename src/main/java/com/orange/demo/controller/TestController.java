@@ -2,12 +2,12 @@ package com.orange.demo.controller;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
-import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.orange.demo.utils.HttpUtil;
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
+import org.codehaus.plexus.util.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -38,7 +38,7 @@ public class TestController {
             JSONObject json = JSONObject.parseObject(result);
             if("true".equals(json.getString("success"))){
                 JSONArray array = json.getJSONArray("result");
-                if(CollectionUtils.isNotEmpty(array)){
+                if(!CollectionUtils.isEmpty(array)){
                     for(Object jsonObject : array){
                         JSONObject data = (JSONObject) jsonObject;
                         String padNo = data.getString("padNo");

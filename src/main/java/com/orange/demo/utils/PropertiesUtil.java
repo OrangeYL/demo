@@ -10,7 +10,7 @@ public class PropertiesUtil {
      * 获取Properties对象
      * @return
      */
-    public  Properties getProperties(){
+    public static Properties getProperties(){
         Properties properties = new Properties();
         InputStream inputStream = null;
         try {
@@ -38,7 +38,7 @@ public class PropertiesUtil {
      * @param key key
      * @return
      */
-    public  String getValue(String key){
+    public static String getValue(String key){
         Properties properties = getProperties();
         String value = properties.getProperty(key);
         return value;
@@ -49,11 +49,11 @@ public class PropertiesUtil {
      * @param key
      * @param value
      */
-    public  void setValue(String key, String value){
+    public static void setValue(String key, String value){
         Properties properties = getProperties();
         properties.setProperty(key, value);
         String path = Thread.currentThread().getContextClassLoader().getResource("").getPath();
-        path = (path + "\\" + "data.properties").substring(1, (path + "data.properties").length());
+        path = (path + "data.properties").substring(1, (path + "data.properties").length());
         FileOutputStream fileOutputStream = null;
         try {
             fileOutputStream = new FileOutputStream(path);

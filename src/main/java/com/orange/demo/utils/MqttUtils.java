@@ -11,9 +11,9 @@ import org.eclipse.paho.client.mqttv3.MqttMessage;
 import java.nio.charset.StandardCharsets;
 
 /**
- * @author: Li ZhiCheng
- * @create: 2023-03-2023/3/8 13:34
- * @description:
+ * Li ZhiCheng
+ * 2023-03-2023/3/8 13:34
+ * Mqtt工具类
  */
 @Slf4j
 public class MqttUtils {

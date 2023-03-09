@@ -2,14 +2,14 @@ package com.orange.demo.utils;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
-import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.orange.demo.entity.EquDetailsInfo;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
+import org.codehaus.plexus.util.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+import org.springframework.util.CollectionUtils;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -63,7 +63,7 @@ public class FileUtils {
                 JSONObject json = JSONObject.parseObject(result);
                 if("true".equals(json.getString("success"))){
                     JSONArray array = json.getJSONArray("result");
-                    if(CollectionUtils.isNotEmpty(array)){
+                    if(!CollectionUtils.isEmpty(array)){
                         for(Object jsonObject : array){
                             JSONObject data = (JSONObject) jsonObject;
                             String padNo = data.getString("padNo");
