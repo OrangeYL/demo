@@ -4,10 +4,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.orange.demo.entity.DataHelper;
 import com.orange.demo.entity.EquDetailsInfo;
 import com.orange.demo.listener.FileListener;
-import com.orange.demo.utils.FileMonitor;
-import com.orange.demo.utils.FileUtils;
-import com.orange.demo.utils.JsonUtils;
-import com.orange.demo.utils.MqttUtils;
+import com.orange.demo.utils.*;
 import de.felixroske.jfxsupport.FXMLController;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -54,6 +51,18 @@ public class PrimaryStageController implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+        if(!StringUtils.isEmpty(PropertiesUtil.getValue("path"))){
+            pathField.setText(PropertiesUtil.getValue("path"));
+        }
+        if(!StringUtils.isEmpty(PropertiesUtil.getValue("storePath"))){
+            storeField.setText(PropertiesUtil.getValue("storePath"));
+        }
+        if(!StringUtils.isEmpty(PropertiesUtil.getValue("fileName"))){
+            fileNameField.setText(PropertiesUtil.getValue("fileName"));
+        }
+        if(!StringUtils.isEmpty(PropertiesUtil.getValue("equType"))){
+            equTypeBox.setValue(PropertiesUtil.getValue("equType"));
+        }
         //触发创建监听按钮
         sureBt.setOnAction(e -> {
             //得到输入框的值
@@ -61,6 +70,11 @@ public class PrimaryStageController implements Initializable {
             String storePath = storeField.getText().trim();
             String fileName = fileNameField.getText().trim();
             String equType = equTypeBox.getValue();
+            //保存在配置文件中
+            PropertiesUtil.setValue("path",path);
+            PropertiesUtil.setValue("storePath",storePath);
+            PropertiesUtil.setValue("fileName",fileName);
+            PropertiesUtil.setValue("equType",equType);
 
             //存进Map里面，后续需要使用
             DataHelper.getMap().put("storePath",storePath);
@@ -107,6 +121,12 @@ public class PrimaryStageController implements Initializable {
             String storePath = storeField.getText().trim();
             String fileName = fileNameField.getText().trim();
             String equType = equTypeBox.getValue();
+
+            //保存在配置文件中
+            PropertiesUtil.setValue("path",path);
+            PropertiesUtil.setValue("storePath",storePath);
+            PropertiesUtil.setValue("fileName",fileName);
+            PropertiesUtil.setValue("equType",equType);
 
             //得到所有的设备文件夹
             List<File> files = FileUtils.getFile(path);
