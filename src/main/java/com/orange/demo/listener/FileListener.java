@@ -47,9 +47,7 @@ public class FileListener extends FileAlterationListenerAdaptor {
         InputStream inputStream = null;
         try {
             inputStream = new FileInputStream(file);
-            if("SPI".equals(equType)){
-                list = fileUtils.readTxt(inputStream,equType);
-            }
+            list = fileUtils.readTxt(inputStream,equType);
             //移动文件夹（先复制再删除）
             FileUtils.moveFolder(eName,directory.getAbsolutePath(),storePath);
             //发送消息存进时序库

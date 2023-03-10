@@ -154,9 +154,7 @@ public class PrimaryStageController implements Initializable {
                     InputStream inputStream = null;
                     try {
                         inputStream = new FileInputStream(file);
-                        if("SPI".equals(equType)){
-                           equDetailsInfos = fileUtils.readTxt(inputStream, equType);
-                        }
+                        equDetailsInfos = fileUtils.readTxt(inputStream, equType);
                         //移动文件夹（先复制再删除）
                         FileUtils.moveFolder(eName,data.getAbsolutePath(),storePath);
                         JSONObject jsonObject = JsonUtils.convertToJson(equDetailsInfos, eName);
