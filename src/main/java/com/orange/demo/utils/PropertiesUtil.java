@@ -1,43 +1,48 @@
 package com.orange.demo.utils;
 
 
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.ApplicationHome;
+
 import java.io.*;
 import java.util.Properties;
-
+@Slf4j
 public class PropertiesUtil {
     /**
      * 获取Properties对象
      * @return
      */
     public static Properties doGetPropertiesJar(){
-        System.out.println("（1）jar包路径");
+        log.info("（1）jar包路径");
         Properties properties = new Properties();
         InputStream inputStream = null;
         try {
-            String path = PropertiesUtil.class.getProtectionDomain().getCodeSource().getLocation().getPath();
-            File file = new File(path);
-            String parent = file.getParent();
-            System.out.println("（1）===> "+ parent);
-            File file1 = new File(parent, "data.properties");
-            inputStream = new FileInputStream(file1);
+            //String path = PropertiesUtil.class.getProtectionDomain().getCodeSource().getLocation().getPath();
+            //File file = new File(path);
+            //String parent = file.getParent();
+            //System.out.println("（1）===> "+ parent);
+            String path = System.getProperty("exe.path");
+            log.info(path);
+            File file = new File(path, "data.properties");
+            inputStream = new FileInputStream(file);
             properties.load(inputStream);
         } catch (FileNotFoundException e) {
-            System.out.println("data.properties文件未找到!");
+            log.info("data.properties文件未找到!");
         } catch (IOException e) {
-            System.out.println("出现IOException");
+            log.info("出现IOException");
         } finally {
             try {
                 if (null != inputStream){
                     inputStream.close();
                 }
             } catch (IOException e) {
-                System.out.println("data.properties文件流关闭出现异常");
+                log.info("data.properties文件流关闭出现异常");
             }
         }
         return properties;
     }
     public static Properties doGetPropertiesNoJar(){
-        System.out.println("（2）不是jar包路径");
+        log.info("（2）不是jar包路径");
         Properties properties = new Properties();
         InputStream inputStream = null;
         try {
@@ -45,16 +50,16 @@ public class PropertiesUtil {
             inputStream = PropertiesUtil.class.getClassLoader().getResourceAsStream("data.properties");
             properties.load(inputStream);
         } catch (FileNotFoundException e) {
-            System.out.println("data.properties文件未找到!");
+            log.info("data.properties文件未找到!");
         } catch (IOException e) {
-            System.out.println("出现IOException");
+            log.info("出现IOException");
         } finally {
             try {
                 if (null != inputStream){
                     inputStream.close();
                 }
             } catch (IOException e) {
-                System.out.println("data.properties文件流关闭出现异常");
+                log.info("data.properties文件流关闭出现异常");
             }
         }
         return properties;
@@ -90,17 +95,21 @@ public class PropertiesUtil {
         properties.setProperty(key, value);
         String newPath = "";
         if(isJar()){
-            System.out.println("(3)jar包路径");
-            String path = PropertiesUtil.class.getProtectionDomain().getCodeSource().getLocation().getPath();
-            File file = new File(path);
-            newPath = file.getParent();
-            newPath =(newPath +"\\"+ "data.properties");
-            System.out.println("3===> " + newPath);
+            String path = System.getProperty("exe.path");
+            log.info(path);
+            newPath = new File(path, "data.properties").getPath();
+            log.info(newPath);
+            //System.out.println("(3)jar包路径");
+           // String path = PropertiesUtil.class.getProtectionDomain().getCodeSource().getLocation().getPath();
+            //File file = new File(path);
+            //newPath = file.getParent();
+            //newPath =(newPath +"\\"+ "data.properties");
+            //System.out.println("3===> " + newPath);
         }else{
-            System.out.println("（4）不是jar包路径");
+            log.info("（4）不是jar包路径");
             String path = Thread.currentThread().getContextClassLoader().getResource("").getPath();
             newPath = (path + "data.properties").substring(1, (path + "data.properties").length());
-            System.out.println("4===> " + newPath);
+            log.info("4===> " + newPath);
         }
         FileOutputStream fileOutputStream = null;
         try {
@@ -116,7 +125,7 @@ public class PropertiesUtil {
                     fileOutputStream.close();
                 }
             } catch (IOException e) {
-                System.out.println("data.properties文件流关闭出现异常");
+                log.info("data.properties文件流关闭出现异常");
             }
         }
     }
