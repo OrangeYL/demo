@@ -25,6 +25,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * @author: Li ZhiCheng
@@ -71,20 +72,20 @@ public class PrimaryStageController implements Initializable {
             String fileName = fileNameField.getText().trim();
             String equType = equTypeBox.getValue();
             //保存在配置文件中
-            PropertiesUtil.setValue("path",path);
-            PropertiesUtil.setValue("storePath",storePath);
-            PropertiesUtil.setValue("fileName",fileName);
-            PropertiesUtil.setValue("equType",equType);
+            PropertiesUtil.setValue("path", path);
+            PropertiesUtil.setValue("storePath", storePath);
+            PropertiesUtil.setValue("fileName", fileName);
+            PropertiesUtil.setValue("equType", equType);
 
             //存进Map里面，后续需要使用
-            DataHelper.getMap().put("storePath",storePath);
-            DataHelper.getMap().put("fileName",fileName);
+            DataHelper.getMap().put("storePath", storePath);
+            DataHelper.getMap().put("fileName", fileName);
             DataHelper.getMap().put("equType", equType);
 
             //得到所有的设备文件夹
             List<File> file = FileUtils.getFile(path);
-            if(file.size() <= 0){
-                log.info("监控路径："+path+"下，没有设备文件夹");
+            if (file.size() <= 0) {
+                log.info("监控路径：" + path + "下，没有设备文件夹");
                 return;
             }
             //遍历设备文件夹并创建监听
@@ -93,12 +94,14 @@ public class PrimaryStageController implements Initializable {
                 fileMonitor.monitor(item.getAbsolutePath(), new FileListener());
                 try {
                     fileMonitor.start();
-                    log.info("文件夹："+item.getName()+"，创建监听成功!");
+                    log.info("文件夹：" + item.getName() + "，创建监听成功!");
                 } catch (Exception exception) {
-                    log.info("文件夹："+item.getName()+"，创建监听失败!原因："+exception.toString());
+                    log.info("文件夹：" + item.getName() + "，创建监听失败!原因：" + exception.toString());
                     exception.printStackTrace();
                 }
             });
+            //禁用按钮
+            sureBt.setDisable(true);
             //增加窗口提示
             Alert alert = null;
             try {
@@ -106,10 +109,10 @@ public class PrimaryStageController implements Initializable {
                 alert.titleProperty().set("提示");
                 alert.contentTextProperty().set("创建成功！");
                 alert.showAndWait();
-            }catch (Exception exception) {
+            } catch (Exception exception) {
                 exception.printStackTrace();
-            }finally {
-                if(null != alert){
+            } finally {
+                if (null != alert) {
                     alert.close();
                 }
             }
