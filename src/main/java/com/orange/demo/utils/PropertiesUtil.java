@@ -2,7 +2,6 @@ package com.orange.demo.utils;
 
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.boot.ApplicationHome;
 
 import java.io.*;
 import java.util.Properties;
@@ -13,7 +12,6 @@ public class PropertiesUtil {
      * @return
      */
     public static Properties doGetPropertiesJar(){
-        log.info("（1）jar包路径");
         Properties properties = new Properties();
         InputStream inputStream = null;
         try {
@@ -22,7 +20,6 @@ public class PropertiesUtil {
             //String parent = file.getParent();
             //System.out.println("（1）===> "+ parent);
             String path = System.getProperty("exe.path");
-            log.info(path);
             File file = new File(path, "data.properties");
             inputStream = new FileInputStream(file);
             properties.load(inputStream);
@@ -42,7 +39,6 @@ public class PropertiesUtil {
         return properties;
     }
     public static Properties doGetPropertiesNoJar(){
-        log.info("（2）不是jar包路径");
         Properties properties = new Properties();
         InputStream inputStream = null;
         try {
@@ -96,9 +92,7 @@ public class PropertiesUtil {
         String newPath = "";
         if(isJar()){
             String path = System.getProperty("exe.path");
-            log.info(path);
             newPath = new File(path, "data.properties").getPath();
-            log.info(newPath);
             //System.out.println("(3)jar包路径");
            // String path = PropertiesUtil.class.getProtectionDomain().getCodeSource().getLocation().getPath();
             //File file = new File(path);
@@ -106,10 +100,8 @@ public class PropertiesUtil {
             //newPath =(newPath +"\\"+ "data.properties");
             //System.out.println("3===> " + newPath);
         }else{
-            log.info("（4）不是jar包路径");
             String path = Thread.currentThread().getContextClassLoader().getResource("").getPath();
             newPath = (path + "data.properties").substring(1, (path + "data.properties").length());
-            log.info("4===> " + newPath);
         }
         FileOutputStream fileOutputStream = null;
         try {

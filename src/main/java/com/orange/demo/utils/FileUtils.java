@@ -29,7 +29,7 @@ public class FileUtils {
     @Value(value = "${elmUrl}")
     private String elmUrl;
 
-    public List<EquDetailsInfo> readTxt(InputStream is, String equType){
+    public List<EquDetailsInfo> readTxt(InputStream is, String equType,String filePath){
         //调用ELM接口得到对应的padNo
         List<NameValuePair> list = new LinkedList<>();
         List<String> padNos = new ArrayList<>();
@@ -46,13 +46,14 @@ public class FileUtils {
             //第一行只取机型
             String line = bufferedReader.readLine();
             //机型
-            String machineType = null;
-            if(line != null){
-                String[] strings = line.split(",");
-                String s = strings[0];
-                String[] strs = s.split("\\|");
-                machineType = strs[strs.length-1];
+            if(StringUtils.isBlank(line)){
+                log.info("文件：" + filePath + "读取不到机型，直接返回！");
+                return new ArrayList<>();
             }
+            String[] strings = line.split(",");
+            String s = strings[0];
+            String[] strs = s.split("\\|");
+            String machineType = strs[strs.length - 1];
             //根据设备类型与机型调用ELM接口得到padNo
             BasicNameValuePair pair1 = new BasicNameValuePair("equType",equType);
             BasicNameValuePair pair2 = new BasicNameValuePair("machineType", machineType);
@@ -73,9 +74,16 @@ public class FileUtils {
                         }
                     }
                 }
+                else{
+                    log.info("采集文件："+filePath+"时，调用ELM接口出错，原因："+json.getString("message"));
+                }
+            }else{
+                log.info("采集文件："+filePath+"时，调用ELM接口出错，result为空！");
+                return new ArrayList<>();
             }
             if(padNos.size() <= 0){
-                log.info("没有查询到数据，padNos为空！");
+                log.info("采集文件："+filePath+"出错，原因："+"通过设备类型"+equType+"和机型"+machineType+"没有查询到数据，padNos为空，不采集该文件！");
+                return new ArrayList<>();
             }
             while((line = bufferedReader.readLine()) != null){
                 //第二行列名跳过
@@ -89,18 +97,22 @@ public class FileUtils {
                 //跟ELM接口得到的数据进行比较，得到需要读取的行
                 String padNo = data[3];
                 for(int i = 0;i < padNos.size();i++){
-                    if(padNo.equals(padNos.get(i))){
-                        equDetailsInfo.setMachineType(machineType);
-                        equDetailsInfo.setBoardId(data[0]);
-                        equDetailsInfo.setPadNo(data[3]);
-                        equDetailsInfo.setInspStTime(data[8]);
-                        equDetailsInfo.setInspVol(Double.valueOf(data[9]));
-                        equDetailsInfo.setInspArea(Double.valueOf(data[10]));
-                        equDetailsInfo.setInspHei(Double.valueOf(data[11]));
-                        equDetailsInfo.setInspX(Double.valueOf(data[12]));
-                        equDetailsInfo.setInspY(Double.valueOf(data[13]));
-                        equDetailsInfos.add(equDetailsInfo);
-                        break;
+                    try {
+                        if(padNo.equals(padNos.get(i))){
+                            equDetailsInfo.setMachineType(machineType);
+                            equDetailsInfo.setBoardId(data[0]);
+                            equDetailsInfo.setPadNo(data[3]);
+                            equDetailsInfo.setInspStTime(data[8]);
+                            equDetailsInfo.setInspVol(Double.valueOf(data[9]));
+                            equDetailsInfo.setInspArea(Double.valueOf(data[10]));
+                            equDetailsInfo.setInspHei(Double.valueOf(data[11]));
+                            equDetailsInfo.setInspX(Double.valueOf(data[12]));
+                            equDetailsInfo.setInspY(Double.valueOf(data[13]));
+                            equDetailsInfos.add(equDetailsInfo);
+                            break;
+                        }
+                    } catch (Exception e) {
+                        log.info("采集文件："+filePath+"出错，原因："+e.toString());
                     }
                 }
             }
@@ -170,8 +182,12 @@ public class FileUtils {
      **/
     public static void copyFolder(String eName,String oldPath, String newPath) {
         try {
+            //采集的文件夹的上上层目录
+            File pFile = new File(oldPath).getParentFile().getParentFile();
+            String pFileName = pFile.getName();
+
             //创建设备文件夹
-            String ePath = newPath + "\\" + eName;
+            String ePath = newPath + "\\"+pFileName+"\\" + eName;
             File eFile = new File(ePath);
             eFile.mkdirs();
 
