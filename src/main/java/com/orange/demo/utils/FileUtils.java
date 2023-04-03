@@ -85,6 +85,7 @@ public class FileUtils {
                 log.info("采集文件："+filePath+"出错，原因："+"通过设备类型"+equType+"和机型"+machineType+"没有查询到数据，padNos为空，不采集该文件！");
                 return new ArrayList<>();
             }
+            int flag = 0;
             while((line = bufferedReader.readLine()) != null){
                 //第二行列名跳过
                 if(index == 1){
@@ -99,6 +100,7 @@ public class FileUtils {
                 for(int i = 0;i < padNos.size();i++){
                     try {
                         if(padNo.equals(padNos.get(i))){
+                            flag = 1;
                             equDetailsInfo.setMachineType(machineType);
                             equDetailsInfo.setBoardId(data[0]);
                             equDetailsInfo.setPadNo(data[3]);
@@ -115,6 +117,9 @@ public class FileUtils {
                         log.info("采集文件："+filePath+"出错，原因："+e.toString());
                     }
                 }
+            }
+            if(flag == 0){
+                log.info("无法采集文件："+filePath+"，原因："+"通过设备类型"+equType+"和机型"+machineType+"查询到数据padNo："+padNos.toString()+"在该文件中不存在！");
             }
             bufferedReader.close();
             reader.close();

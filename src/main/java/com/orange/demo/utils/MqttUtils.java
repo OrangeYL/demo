@@ -25,20 +25,15 @@ public class MqttUtils {
      *   发送消息
      *   @param data 消息内容
      */
-    public static void send(String clientId,Object data) {
+    public static void send(String clientId,Object data) throws JsonProcessingException, MqttException {
         // 获取客户端实例
         MqttClient client = MqttFactory.getInstance(clientId);
         ObjectMapper mapper = new ObjectMapper();
-        try {
-            // 转换消息为json字符串
-            String json = mapper.writeValueAsString(data);
-            client.publish(TOPIC, new MqttMessage(json.getBytes(StandardCharsets.UTF_8)));
-            log.info("消息发送成功，clientId:{},topic:{}",clientId,TOPIC);
-        } catch (JsonProcessingException e) {
-            log.info(String.format("MQTT: 主题[%s]发送消息转换json失败，原因：[%s]", TOPIC,e.toString()));
-        } catch (MqttException e) {
-            log.info(String.format("MQTT: 主题[%s]发送消息失败,原因：[%s]", TOPIC,e.toString()));
-        }
+        // 转换消息为json字符串
+        String json = mapper.writeValueAsString(data);
+        client.publish(TOPIC, new MqttMessage(json.getBytes(StandardCharsets.UTF_8)));
+        log.info("消息发送成功，clientId:{},topic:{}", clientId, TOPIC);
+
     }
 
     public static void main(String[] args) {
