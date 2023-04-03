@@ -21,23 +21,21 @@ public class MqttFactory {
     //密码
     private final static String PASSWORD = "public";
 
-    private static MqttClient client;
 
     /**
      *   获取客户端实例
      *   单例模式, 存在则返回, 不存在则初始化
      */
     public static MqttClient getInstance(String clientId) {
-        if (client == null || !clientId.equals(client.getClientId())) {
-            init(clientId);
-        }
+        MqttClient client = init(clientId);
         return client;
     }
 
     /**
      *   初始化客户端
      */
-    public static void init(String clientId) {
+    public static MqttClient init(String clientId) {
+        MqttClient client = null;
         try {
             client = new MqttClient(HOST,clientId,new MemoryPersistence());
             // MQTT配置对象
@@ -51,5 +49,6 @@ public class MqttFactory {
         } catch (MqttException e) {
             log.info("连接MQTT服务器--异常,clientId:{},exception:{}", clientId, e.toString());
         }
+        return client;
     }
 }
