@@ -40,17 +40,27 @@ public class FileListener extends FileAlterationListenerAdaptor {
     }
     //判断文件夹是不是需要采集的文件夹
     public boolean judgeGatherContents(File directory){
+        String fileName = (String) DataHelper.getMap().get("fileName");
+        if(!fileName.contains(".txt")){
+            fileName = fileName + ".txt";
+        }
         //需要采集的文件夹里面都是txt文件，没有文件夹，以此作为判断
         File[] childrenFiles = directory.listFiles();
         //如果为空就不是
         if(Objects.isNull(childrenFiles) || childrenFiles.length == 0){
             return false;
         }
-        //该方法只列出文件夹
-        List<File> files = FileUtils.getFile(directory.getAbsolutePath());
-        if(files.size() > 0){
-            return false;
+        //包含要采集的文件则为true
+        for(File file : childrenFiles){
+            if(file.isFile() && file.getName().equals(fileName)){
+                return true;
+            }
         }
-        return true;
+        //如果没有文件夹，视为true
+        List<File> files = FileUtils.getFile(directory.getAbsolutePath());
+        if(files.size() <= 0){
+            return true;
+        }
+        return false;
     }
 }
