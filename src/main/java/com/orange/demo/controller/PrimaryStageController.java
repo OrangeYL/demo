@@ -8,10 +8,7 @@ import de.felixroske.jfxsupport.FXMLController;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Button;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
@@ -62,27 +59,23 @@ public class PrimaryStageController implements Initializable {
     //触发创建监听按钮
     @FXML
     public void sure(ActionEvent actionEvent) {
-        Alert alert = null;
         //得到输入框的值
         String path = pathField.getText().trim();
         String storePath = storeField.getText().trim();
         String fileName = fileNameField.getText().trim();
         String equType = equTypeBox.getValue();
-        if(StringUtils.isEmpty(path) || StringUtils.isEmpty(storePath) || StringUtils.isEmpty(fileName) || StringUtils.isEmpty(equType)){
-            log.info("path:{},storePath:{},fileName:{},equType:{}",path,storePath,fileName,equType);
-            try {
-                alert = new Alert(Alert.AlertType.WARNING);
-                alert.titleProperty().set("警告");
-                alert.contentTextProperty().set("监控配置信息为空，请检查!");
-                alert.showAndWait();
-            } catch (Exception e) {
-                log.info("alert关闭失败，原因：{}",e.toString());
-            }finally {
-                if(null != alert){
-                    alert.close();
-                }
+        if("VI".equals(equType)){
+            if(StringUtils.isEmpty(path) || StringUtils.isEmpty(storePath)  || StringUtils.isEmpty(equType)){
+                log.info("path:{},storePath:{},fileName:{},equType:{}",path,storePath,fileName,equType);
+                popTip("警告","监控配置信息为空，请检查!");
+                return;
             }
-            return;
+        }else if("SPI".equals(equType)){
+            if(StringUtils.isEmpty(path) || StringUtils.isEmpty(storePath) || StringUtils.isEmpty(fileName) || StringUtils.isEmpty(equType)){
+                log.info("path:{},storePath:{},fileName:{},equType:{}",path,storePath,fileName,equType);
+                popTip("警告","监控配置信息为空，请检查!");
+                return;
+            }
         }
         //保存数据
         saveDataToPropertiesAndMap(path,storePath,fileName,equType);
@@ -93,18 +86,7 @@ public class PrimaryStageController implements Initializable {
             sureBt.setDisable(true);
             log.info("文件夹：" + path + "，创建监听成功!");
             //增加窗口提示
-            try {
-                alert = new Alert(Alert.AlertType.INFORMATION);
-                alert.titleProperty().set("提示");
-                alert.contentTextProperty().set("创建成功！");
-                alert.showAndWait();
-            } catch (Exception e) {
-                log.info("alert关闭失败，原因：{}",e.toString());
-            } finally {
-                if (null != alert) {
-                    alert.close();
-                }
-            }
+            popTip("提示","创建成功!");
         } catch (Exception e) {
             log.info("文件夹：" + path + "，创建监听失败!原因：" + e.toString());
         }
@@ -112,49 +94,34 @@ public class PrimaryStageController implements Initializable {
     //扫描一次
     @FXML
     public void scan(ActionEvent actionEvent) throws Exception {
-        Alert alert = null;
         //得到输入框的值
         String path = pathField.getText().trim();
         String storePath = storeField.getText().trim();
         String fileName = fileNameField.getText().trim();
         String equType = equTypeBox.getValue();
-        if(StringUtils.isEmpty(path) || StringUtils.isEmpty(storePath) || StringUtils.isEmpty(fileName) || StringUtils.isEmpty(equType)){
-            log.info("path:{},storePath:{},fileName:{},equType:{}",path,storePath,fileName,equType);
-            try {
-                alert = new Alert(Alert.AlertType.WARNING);
-                alert.titleProperty().set("警告");
-                alert.contentTextProperty().set("监控配置信息为空，请检查!");
-                alert.showAndWait();
-            } catch (Exception e) {
-                log.info("alert关闭失败，原因：{}",e.toString());
-            }finally {
-                if(null != alert){
-                    alert.close();
-                }
+        if("VI".equals(equType)){
+            if(StringUtils.isEmpty(path) || StringUtils.isEmpty(storePath)  || StringUtils.isEmpty(equType)){
+                log.info("path:{},storePath:{},fileName:{},equType:{}",path,storePath,fileName,equType);
+                popTip("警告","监控配置信息为空，请检查!");
+                return;
             }
-            return;
+        }else if("SPI".equals(equType)){
+            if(StringUtils.isEmpty(path) || StringUtils.isEmpty(storePath) || StringUtils.isEmpty(fileName) || StringUtils.isEmpty(equType)){
+                log.info("path:{},storePath:{},fileName:{},equType:{}",path,storePath,fileName,equType);
+                popTip("警告","监控配置信息为空，请检查!");
+                return;
+            }
         }
         //保存在配置文件中
         saveDataToPropertiesAndMap(path, storePath, fileName, equType);
+        //开始扫描
         if("SPI".equals(equType)){
             scanForSpi(path);
         }
         //增加窗口提示
-        try {
-            alert = new Alert(Alert.AlertType.INFORMATION);
-            alert.titleProperty().set("提示");
-            alert.headerTextProperty().set("提示");
-            alert.contentTextProperty().set("扫描结束！");
-            alert.showAndWait();
-        } catch (Exception exception) {
-            exception.printStackTrace();
-        } finally {
-            if (null != alert) {
-                alert.close();
-            }
-        }
+        popTip("提示","扫描结束!");
     }
-
+    //SPI扫描
     public void scanForSpi(String path){
         //得到所有的path路径下文件夹
         List<File> files = FileUtils.getFile(path);
@@ -176,7 +143,7 @@ public class PrimaryStageController implements Initializable {
                     log.info("设备路径："+item.getAbsolutePath()+"下，没有文件夹，跳过该文件!");
                 }
                 for(File data : list){
-                    fileService.gatherFile(data);
+                    fileService.gatherFileForSpi(data);
                 }
             }
         }
@@ -199,5 +166,21 @@ public class PrimaryStageController implements Initializable {
         FileMonitor fileMonitor = new FileMonitor(1000);
         fileMonitor.monitor(path, new FileListener());
         fileMonitor.start();
+    }
+    //弹出提示
+    public void popTip(String title,String text){
+        Alert alert = null;
+        try {
+            alert = new Alert(Alert.AlertType.WARNING);
+            alert.titleProperty().set(title);
+            alert.contentTextProperty().set(text);
+            alert.showAndWait();
+        } catch (Exception e) {
+            log.info("弹出警告错误：" + e.toString());
+        }finally {
+            if(null != alert){
+                alert.close();
+            }
+        }
     }
 }

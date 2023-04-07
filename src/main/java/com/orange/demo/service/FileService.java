@@ -9,5 +9,7 @@ import java.io.File;
  */
 public interface FileService {
 
-    public void gatherFile(File file);
+    public void gatherFileForSpi(File file);
+
+    public void gatherFileForVi(File file);
 }

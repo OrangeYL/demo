@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.orange.demo.entity.DataHelper;
 import com.orange.demo.entity.EquDetailsInfo;
+import com.orange.demo.entity.ViInfo;
 import com.orange.demo.service.FileService;
 import com.orange.demo.utils.FileUtils;
 import com.orange.demo.utils.JsonUtils;
@@ -34,7 +35,7 @@ public class FileServiceImpl implements FileService {
     FileUtils fileUtils;
 
     @Override
-    public void gatherFile(File file) {
+    public void gatherFileForSpi(File file) {
         //获取输入框的值
         Map<String, Object> map = DataHelper.getMap();
         String storePath = (String) map.get("storePath");
@@ -54,7 +55,7 @@ public class FileServiceImpl implements FileService {
         InputStream inputStream = null;
         try {
             inputStream = new FileInputStream(aFile);
-            equDetailsInfos = fileUtils.readTxt(inputStream, equType,filePath);
+            equDetailsInfos = fileUtils.readTxtForSpi(inputStream, equType,filePath);
             if(equDetailsInfos.size() <= 0){
                 return;
             }
@@ -70,6 +71,24 @@ public class FileServiceImpl implements FileService {
             } catch (MqttException e) {
                 log.info("MQTT发送消息异常，原因："+ e.toString());
             }
+        } catch (FileNotFoundException e) {
+            log.info("文件不存在！原因："+e.toString());
+        }
+    }
+
+    @Override
+    public void gatherFileForVi(File file) {
+        //获取输入框的值
+        Map<String, Object> map = DataHelper.getMap();
+        String storePath = (String) map.get("storePath");
+        String equType = (String) map.get("equType");
+
+        List<ViInfo> viInfos = new ArrayList<>();
+        InputStream inputStream = null;
+        try {
+            inputStream = new FileInputStream(file);
+            viInfos = fileUtils.readTxtForVi(inputStream,file);
+            viInfos.forEach(System.out::println);
         } catch (FileNotFoundException e) {
             log.info("文件不存在！原因："+e.toString());
         }

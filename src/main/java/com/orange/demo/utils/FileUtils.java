@@ -3,6 +3,7 @@ package com.orange.demo.utils;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.orange.demo.entity.EquDetailsInfo;
+import com.orange.demo.entity.ViInfo;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
@@ -29,7 +30,7 @@ public class FileUtils {
     @Value(value = "${elmUrl}")
     private String elmUrl;
 
-    public List<EquDetailsInfo> readTxt(InputStream is, String equType,String filePath){
+    public List<EquDetailsInfo> readTxtForSpi(InputStream is, String equType,String filePath){
         //调用ELM接口得到对应的padNo
         List<NameValuePair> list = new LinkedList<>();
         List<String> padNos = new ArrayList<>();
@@ -128,6 +129,56 @@ public class FileUtils {
             log.info("文件读取错误！原因："+e.toString());
         }
         return equDetailsInfos;
+    }
+
+    public List<ViInfo> readTxtForVi(InputStream is,File file){
+        InputStreamReader reader = null;
+        BufferedReader bufferedReader = null;
+        int index = 1;
+        //设备详细数据
+        List<ViInfo> viInfos = null;
+        try {
+            reader = new InputStreamReader(is,"GBK");
+            bufferedReader = new BufferedReader(reader);
+            viInfos = new ArrayList<>();
+            //读取第一行，取设备名称，机型
+            String line = bufferedReader.readLine();
+            if(StringUtils.isBlank(line)){
+                log.info("文件：" + file.getAbsolutePath() + "读取不到机型，设备名，直接返回！");
+                return new ArrayList<>();
+            }
+            String[] strs = line.split(",");
+            //设备名
+            String str1 = strs[0];
+            String eName = str1.substring(str1.lastIndexOf(" ")+1,str1.length());
+            //机型
+            String str2 = strs[1];
+            String machineType = str2.substring(str2.lastIndexOf(" ")+1,str2.length());
+            while((line = bufferedReader.readLine()) != null){
+                //第二行列名跳过
+                if(index == 1){
+                    index++;
+                    continue;
+                }
+                //设备数据，即txt文件中的数据
+                ViInfo viInfo = new ViInfo();
+                String[] data = line.split(" ");
+                String ref = data[0];
+                if("1:D204".equals(ref)){
+                    viInfo.setDX(Double.valueOf(data[5]));
+                    viInfo.setDY(Double.valueOf(data[6]));
+                    viInfo.setDTheta(Double.valueOf(data[7]));
+                    viInfo.setErrCode(data[8]);
+                    viInfos.add(viInfo);
+                }
+            }
+            bufferedReader.close();
+            reader.close();
+            is.close();
+        }catch (Exception e){
+            log.info("文件读取错误！原因："+e.toString());
+        }
+        return viInfos;
     }
     /**
      *获取文件夹

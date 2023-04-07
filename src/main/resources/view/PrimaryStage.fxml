@@ -28,16 +28,17 @@
             </rowConstraints>
             <children>
                 <Label fx:id="pathLabel" text="文件路径：" />
-                <Label fx:id="storeLabel" text="存放路径：" GridPane.rowIndex="1" />
+                <Label fx:id="storeLabel" text="移动路径：" GridPane.rowIndex="1" />
                 <Label fx:id="fileNameLabel" text="文件名称：" GridPane.rowIndex="2" />
                 <Label fx:id="equTypeLabel" text="设备类型：" GridPane.rowIndex="3" />
                 <TextField fx:id="pathField" GridPane.columnIndex="1" />
                 <TextField fx:id="storeField" GridPane.columnIndex="1" GridPane.rowIndex="1" />
                 <TextField fx:id="fileNameField" GridPane.columnIndex="1" GridPane.rowIndex="2" />
-                <ComboBox fx:id="equTypeBox" prefHeight="23.0" prefWidth="262.0" GridPane.columnIndex="1" GridPane.rowIndex="3" value="SPI" >
+                <ComboBox fx:id="equTypeBox" prefHeight="23.0" prefWidth="262.0" GridPane.columnIndex="1" GridPane.rowIndex="3" value="VI" >
                     <items>
                         <FXCollections fx:factory="observableArrayList">
                             <String fx:value="SPI"/>
+                            <String fx:value="VI"/>
                         </FXCollections>
                     </items>
                 </ComboBox>

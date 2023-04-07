@@ -24,9 +24,28 @@ public class FileListener extends FileAlterationListenerAdaptor {
             gatherFileForSpi(directory);
         }
     }
+
+    @Override
+    public void onFileCreate(File file) {
+        String equType = (String) DataHelper.getMap().get("equType");
+        if("VI".equals(equType)){
+            gatherFileForVi(file);
+        }
+    }
+
+    public void gatherFileForVi(File file){
+        //获取实例
+        FileService fileService = SpringJobBeanFactory.getBean(FileService.class);
+        if(fileService == null){
+            log.info("文件夹:{}，采集出错，原因:fileService为空！",file.getAbsolutePath());
+            return;
+        }
+        fileService.gatherFileForVi(file);
+    }
+
     public void gatherFileForSpi(File file){
         //判断是否是需要采集的文件夹
-        boolean flag = judgeGatherContents(file);
+        boolean flag = judgeGatherContentsForSpi(file);
         if(flag){
             //获取实例
             FileService fileService = SpringJobBeanFactory.getBean(FileService.class);
@@ -35,11 +54,12 @@ public class FileListener extends FileAlterationListenerAdaptor {
                 return;
             }
             //采集文件
-            fileService.gatherFile(file);
+            fileService.gatherFileForSpi(file);
         }
     }
+
     //判断文件夹是不是需要采集的文件夹
-    public boolean judgeGatherContents(File directory){
+    public boolean judgeGatherContentsForSpi(File directory){
         String fileName = (String) DataHelper.getMap().get("fileName");
         if(!fileName.contains(".txt")){
             fileName = fileName + ".txt";
