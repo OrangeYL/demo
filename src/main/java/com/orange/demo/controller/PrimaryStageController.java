@@ -107,15 +107,15 @@ public class PrimaryStageController implements Initializable {
         String equName = equNameField.getText().trim();
         String equType = equTypeBox.getValue();
         if("VI".equals(equType)){
-            if(StringUtils.isEmpty(path) || StringUtils.isEmpty(storePath)  || StringUtils.isEmpty(equType)){
-                log.info("path:{},storePath:{},fileName:{},equType:{}",path,storePath,fileName,equType);
-                popTip("警告","监控配置信息为空，请检查!");
+            if(StringUtils.isEmpty(path) || StringUtils.isEmpty(storePath)  || StringUtils.isEmpty(equType) || StringUtils.isEmpty(equName)){
+                log.info("path:{},storePath:{},equType:{},equName:{}",path,storePath,equType,equName);
+                popTip("警告","监控配置信息填写不全，请确保文件路径，移动路径，设备名称，设备类型已填!");
                 return;
             }
         }else if("SPI".equals(equType)){
             if(StringUtils.isEmpty(path) || StringUtils.isEmpty(storePath) || StringUtils.isEmpty(fileName) || StringUtils.isEmpty(equType)){
                 log.info("path:{},storePath:{},fileName:{},equType:{}",path,storePath,fileName,equType);
-                popTip("警告","监控配置信息为空，请检查!");
+                popTip("警告","监控配置信息填写不全，请确保文件路径，移动路径，文件名称，设备类型已填!");
                 return;
             }
         }
@@ -124,6 +124,8 @@ public class PrimaryStageController implements Initializable {
         //开始扫描
         if("SPI".equals(equType)){
             scanForSpi(path);
+        }else if("VI".equals(equType)){
+            scanForVi(path);
         }
         //增加窗口提示
         popTip("提示","扫描结束!");
@@ -153,6 +155,18 @@ public class PrimaryStageController implements Initializable {
                     fileService.gatherFileForSpi(data);
                 }
             }
+        }
+    }
+    //VI扫描
+    public void scanForVi(String path){
+        File file = new File(path);
+        File[] files = file.listFiles();
+        if(files == null || files.length == 0){
+            log.info("在路径:"+path+"下，没有文件！");
+            return;
+        }
+        for(File f : files){
+            fileService.gatherFileForVi(f);
         }
     }
     //保存数据到配置文件和Map中
