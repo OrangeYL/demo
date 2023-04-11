@@ -30,11 +30,13 @@
                 <Label fx:id="pathLabel" text="文件路径：" />
                 <Label fx:id="storeLabel" text="移动路径：" GridPane.rowIndex="1" />
                 <Label fx:id="fileNameLabel" text="文件名称：" GridPane.rowIndex="2" />
-                <Label fx:id="equTypeLabel" text="设备类型：" GridPane.rowIndex="3" />
+                <Label fx:id="equNameLabel" text="设备名称：" GridPane.rowIndex="3" />
+                <Label fx:id="equTypeLabel" text="设备类型：" GridPane.rowIndex="4" />
                 <TextField fx:id="pathField" GridPane.columnIndex="1" />
                 <TextField fx:id="storeField" GridPane.columnIndex="1" GridPane.rowIndex="1" />
                 <TextField fx:id="fileNameField" GridPane.columnIndex="1" GridPane.rowIndex="2" />
-                <ComboBox fx:id="equTypeBox" prefHeight="23.0" prefWidth="262.0" GridPane.columnIndex="1" GridPane.rowIndex="3" value="VI" >
+                <TextField fx:id="equNameField" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+                <ComboBox fx:id="equTypeBox" prefHeight="23.0" prefWidth="262.0" GridPane.columnIndex="1" GridPane.rowIndex="4" value="VI" >
                     <items>
                         <FXCollections fx:factory="observableArrayList">
                             <String fx:value="SPI"/>
@@ -43,8 +45,8 @@
                     </items>
                 </ComboBox>
 
-                <Button fx:id="sureBt" onAction="#sure" alignment="CENTER_RIGHT" contentDisplay="RIGHT" mnemonicParsing="false" text="创建监听" GridPane.rowIndex="4" />
-                <Button fx:id="scanBt" onAction="#scan" mnemonicParsing="false" text="扫描一次" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+                <Button fx:id="sureBt" onAction="#sure" alignment="CENTER_RIGHT" contentDisplay="RIGHT" mnemonicParsing="false" text="创建监听" GridPane.rowIndex="5" />
+                <Button fx:id="scanBt" onAction="#scan" mnemonicParsing="false" text="扫描一次" GridPane.columnIndex="1" GridPane.rowIndex="5" />
             </children>
             <BorderPane.margin>
                 <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />

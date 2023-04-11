@@ -34,6 +34,8 @@ public class PrimaryStageController implements Initializable {
     @FXML
     private TextField fileNameField;
     @FXML
+    private TextField equNameField;
+    @FXML
     private ComboBox<String> equTypeBox;
     @FXML
     private Button sureBt;
@@ -52,6 +54,9 @@ public class PrimaryStageController implements Initializable {
         if(!StringUtils.isEmpty(PropertiesUtil.getValue("fileName"))){
             fileNameField.setText(PropertiesUtil.getValue("fileName"));
         }
+        if(!StringUtils.isEmpty(PropertiesUtil.getValue("equName"))){
+            equNameField.setText(PropertiesUtil.getValue("equName"));
+        }
         if(!StringUtils.isEmpty(PropertiesUtil.getValue("equType"))){
             equTypeBox.setValue(PropertiesUtil.getValue("equType"));
         }
@@ -63,22 +68,23 @@ public class PrimaryStageController implements Initializable {
         String path = pathField.getText().trim();
         String storePath = storeField.getText().trim();
         String fileName = fileNameField.getText().trim();
+        String equName = equNameField.getText().trim();
         String equType = equTypeBox.getValue();
         if("VI".equals(equType)){
-            if(StringUtils.isEmpty(path) || StringUtils.isEmpty(storePath)  || StringUtils.isEmpty(equType)){
-                log.info("path:{},storePath:{},fileName:{},equType:{}",path,storePath,fileName,equType);
-                popTip("警告","监控配置信息为空，请检查!");
+            if(StringUtils.isEmpty(path) || StringUtils.isEmpty(storePath)  || StringUtils.isEmpty(equType) || StringUtils.isEmpty(equName)){
+                log.info("path:{},storePath:{},equType:{},equName:{}",path,storePath,equType,equName);
+                popTip("警告","监控配置信息填写不全，请确保文件路径，移动路径，设备名称，设备类型已填!");
                 return;
             }
         }else if("SPI".equals(equType)){
             if(StringUtils.isEmpty(path) || StringUtils.isEmpty(storePath) || StringUtils.isEmpty(fileName) || StringUtils.isEmpty(equType)){
                 log.info("path:{},storePath:{},fileName:{},equType:{}",path,storePath,fileName,equType);
-                popTip("警告","监控配置信息为空，请检查!");
+                popTip("警告","监控配置信息填写不全，请确保文件路径，移动路径，文件名称，设备类型已填!");
                 return;
             }
         }
         //保存数据
-        saveDataToPropertiesAndMap(path,storePath,fileName,equType);
+        saveDataToPropertiesAndMap(path,storePath,fileName,equType,equName);
         //为path路径下设置监控
         try {
             createListener(path);
@@ -98,6 +104,7 @@ public class PrimaryStageController implements Initializable {
         String path = pathField.getText().trim();
         String storePath = storeField.getText().trim();
         String fileName = fileNameField.getText().trim();
+        String equName = equNameField.getText().trim();
         String equType = equTypeBox.getValue();
         if("VI".equals(equType)){
             if(StringUtils.isEmpty(path) || StringUtils.isEmpty(storePath)  || StringUtils.isEmpty(equType)){
@@ -113,7 +120,7 @@ public class PrimaryStageController implements Initializable {
             }
         }
         //保存在配置文件中
-        saveDataToPropertiesAndMap(path, storePath, fileName, equType);
+        saveDataToPropertiesAndMap(path, storePath, fileName, equType,equName);
         //开始扫描
         if("SPI".equals(equType)){
             scanForSpi(path);
@@ -149,16 +156,18 @@ public class PrimaryStageController implements Initializable {
         }
     }
     //保存数据到配置文件和Map中
-    public void saveDataToPropertiesAndMap(String path,String storePath,String fileName,String equType){
+    public void saveDataToPropertiesAndMap(String path,String storePath,String fileName,String equType,String equName){
         //保存到配置文件中
         PropertiesUtil.setValue("path",path);
         PropertiesUtil.setValue("storePath",storePath);
         PropertiesUtil.setValue("fileName",fileName);
+        PropertiesUtil.setValue("equName",equName);
         PropertiesUtil.setValue("equType",equType);
         //保存到map中，后续需要使用
         DataHelper.getMap().put("path",path);
         DataHelper.getMap().put("storePath",storePath);
         DataHelper.getMap().put("fileName",fileName);
+        DataHelper.getMap().put("equName",equName);
         DataHelper.getMap().put("equType",equType);
     }
     //创建监听

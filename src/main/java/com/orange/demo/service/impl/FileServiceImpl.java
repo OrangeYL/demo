@@ -60,11 +60,11 @@ public class FileServiceImpl implements FileService {
                 return;
             }
             //发送数据
-            JSONObject jsonObject = JsonUtils.convertToJson(equDetailsInfos, eName);
+            JSONObject jsonObject = JsonUtils.convertToJsonForSpi(equDetailsInfos, eName);
             try {
                 MqttUtils.send(eName,jsonObject);
                 //移动文件夹（先复制再删除）
-                FileUtils.moveFolder(eName,file.getAbsolutePath(),storePath);
+                FileUtils.moveFolderForSpi(eName,file.getAbsolutePath(),storePath);
                 log.info("文件："+ file.getAbsolutePath()+" 采集完成！");
             } catch (JsonProcessingException e) {
                 log.info("MQTT转换JSON异常，原因："+ e.toString());
@@ -82,13 +82,27 @@ public class FileServiceImpl implements FileService {
         Map<String, Object> map = DataHelper.getMap();
         String storePath = (String) map.get("storePath");
         String equType = (String) map.get("equType");
+        String equName = (String) map.get("equName");
 
         List<ViInfo> viInfos = new ArrayList<>();
         InputStream inputStream = null;
         try {
             inputStream = new FileInputStream(file);
-            viInfos = fileUtils.readTxtForVi(inputStream,file);
-            viInfos.forEach(System.out::println);
+            viInfos = fileUtils.readTxtForVi(inputStream,equType,file);
+            if(viInfos.size() <= 0){
+                return;
+            }
+            try {
+                JSONObject jsonObject = JsonUtils.convertToJsonForVi(viInfos, equName);
+                MqttUtils.send(equName,jsonObject);
+                //移动文件夹（先复制再删除）
+                FileUtils.moveFolderForVi(file,storePath);
+                log.info("文件："+ file.getAbsolutePath()+" 采集完成！");
+            } catch (JsonProcessingException e) {
+                log.info("MQTT转换JSON异常，原因："+ e.toString());
+            } catch (MqttException e) {
+                log.info("MQTT发送消息异常，原因："+ e.toString());
+            }
         } catch (FileNotFoundException e) {
             log.info("文件不存在！原因："+e.toString());
         }

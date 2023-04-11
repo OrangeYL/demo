@@ -17,6 +17,7 @@ import java.util.*;
 @Slf4j
 public class FileListener extends FileAlterationListenerAdaptor {
 
+    //监听文件夹
     @Override
     public void onDirectoryCreate(File directory) {
         String equType = (String) DataHelper.getMap().get("equType");
@@ -25,6 +26,7 @@ public class FileListener extends FileAlterationListenerAdaptor {
         }
     }
 
+    //监听文件
     @Override
     public void onFileCreate(File file) {
         String equType = (String) DataHelper.getMap().get("equType");

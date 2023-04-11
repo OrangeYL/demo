@@ -131,29 +131,62 @@ public class FileUtils {
         return equDetailsInfos;
     }
 
-    public List<ViInfo> readTxtForVi(InputStream is,File file){
+    public List<ViInfo> readTxtForVi(InputStream is,String equType,File file){
+        //调用ELM接口得到对应的信息
+        List<NameValuePair> list = new LinkedList<>();
+        List<String> info = new ArrayList<>();
+
         InputStreamReader reader = null;
         BufferedReader bufferedReader = null;
-        int index = 1;
         //设备详细数据
         List<ViInfo> viInfos = null;
         try {
             reader = new InputStreamReader(is,"GBK");
             bufferedReader = new BufferedReader(reader);
+            int index = 1;
             viInfos = new ArrayList<>();
-            //读取第一行，取设备名称，机型
+            //读取第一行，取机型
             String line = bufferedReader.readLine();
             if(StringUtils.isBlank(line)){
                 log.info("文件：" + file.getAbsolutePath() + "读取不到机型，设备名，直接返回！");
                 return new ArrayList<>();
             }
             String[] strs = line.split(",");
-            //设备名
-            String str1 = strs[0];
-            String eName = str1.substring(str1.lastIndexOf(" ")+1,str1.length());
             //机型
             String str2 = strs[1];
             String machineType = str2.substring(str2.lastIndexOf(" ")+1,str2.length());
+            //根据设备类型与机型调用ELM接口得到padNo
+            BasicNameValuePair pair1 = new BasicNameValuePair("equType",equType);
+            BasicNameValuePair pair2 = new BasicNameValuePair("machineType", machineType);
+            list.add(pair1);
+            list.add(pair2);
+            String result = HttpUtil.doGetJson(elmUrl, list);
+            if(StringUtils.isNotBlank(result)){
+                JSONObject json = JSONObject.parseObject(result);
+                if("true".equals(json.getString("success"))){
+                    JSONArray array = json.getJSONArray("result");
+                    if(!CollectionUtils.isEmpty(array)){
+                        for(Object jsonObject : array){
+                            JSONObject data = (JSONObject) jsonObject;
+                            String padNo = data.getString("padNo");
+                            if(StringUtils.isNotBlank(padNo)){
+                                info.add(padNo);
+                            }
+                        }
+                    }
+                }
+                else{
+                    log.info("采集文件："+file.getAbsolutePath()+"时，调用ELM接口出错，原因："+json.getString("message"));
+                }
+            }else{
+                log.info("采集文件："+file.getAbsolutePath()+"时，调用ELM接口出错，result为空！");
+                return new ArrayList<>();
+            }
+            if(info.size() <= 0){
+                log.info("采集文件："+file.getAbsolutePath()+"出错，原因："+"通过设备类型"+equType+"和机型"+machineType+"没有查询到数据，padNos为空，不采集该文件！");
+                return new ArrayList<>();
+            }
+            int flag = 0;
             while((line = bufferedReader.readLine()) != null){
                 //第二行列名跳过
                 if(index == 1){
@@ -163,14 +196,26 @@ public class FileUtils {
                 //设备数据，即txt文件中的数据
                 ViInfo viInfo = new ViInfo();
                 String[] data = line.split(" ");
+                //跟ELM接口得到的数据进行比较，得到需要读取的行
                 String ref = data[0];
-                if("1:D204".equals(ref)){
-                    viInfo.setDX(Double.valueOf(data[5]));
-                    viInfo.setDY(Double.valueOf(data[6]));
-                    viInfo.setDTheta(Double.valueOf(data[7]));
-                    viInfo.setErrCode(data[8]);
-                    viInfos.add(viInfo);
+                for(int i = 0;i < info.size();i++){
+                    try {
+                        if(ref.equals(info.get(i))){
+                            flag = 1;
+                            viInfo.setDX(Double.valueOf(data[5]));
+                            viInfo.setDY(Double.valueOf(data[6]));
+                            viInfo.setDTheta(Double.valueOf(data[7]));
+                            viInfo.setErrCode(data[8]);
+                            viInfos.add(viInfo);
+                            break;
+                        }
+                    } catch (Exception e) {
+                        log.info("采集文件："+file.getAbsolutePath()+"出错，原因："+e.toString());
+                    }
                 }
+            }
+            if(flag == 0){
+                log.info("无法采集文件："+file.getAbsolutePath()+"，原因："+"通过设备类型"+equType+"和机型"+machineType+"查询到数据padNo："+info.toString()+"在该文件中不存在！");
             }
             bufferedReader.close();
             reader.close();
@@ -297,10 +342,41 @@ public class FileUtils {
             log.info("复制文件夹:"+eName+",内容操作出错，原因："+e);
         }
     }
-    public static void moveFolder(String eName,String oldPath, String newPath) {
+    public static void copyFile(File file,String path){
+        if(file.isFile()){
+            //得到上级文件夹
+            File pFile = file.getParentFile();
+            String pName = pFile.getName();
+            //形成新的文件夹
+            String newPath = path +"\\"+ pName;
+            File newFile = new File(newPath);
+            newFile.mkdirs();
+            try {
+                FileInputStream input = new FileInputStream(file);
+                FileOutputStream output = new FileOutputStream(newFile.getAbsolutePath() + "/" + (file.getName()).toString());
+                byte[] buffer = new byte[1024 * 64];
+                int length;
+                while ((length = input.read(buffer)) != -1) {
+                    output.write(buffer, 0, length);
+                }
+                output.flush();
+                output.close();
+                input.close();
+            } catch (Exception e) {
+                log.info("复制文件:"+file.getAbsolutePath()+",内容操作出错，原因："+e);
+            }
+        }
+    }
+    public static void moveFolderForSpi(String eName,String oldPath, String newPath) {
         // 先复制文件
         copyFolder(eName,oldPath, newPath);
         // 则删除源文件，以免复制的时候错乱
         deleteDir(new File(oldPath));
+    }
+    public static void moveFolderForVi(File file,String path){
+        // 先复制文件
+        copyFile(file,path);
+        // 则删除源文件，以免复制的时候错乱
+        deleteDir(file);
     }
 }
