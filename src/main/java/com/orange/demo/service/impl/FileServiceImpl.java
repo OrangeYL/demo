@@ -13,6 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -41,9 +42,14 @@ public class FileServiceImpl implements FileService {
         String storePath = (String) map.get("storePath");
         String fileName = (String) map.get("fileName");
         String equType = (String) map.get("equType");
-
+        String equName = (String) map.get("equName");
         //设备名字
-        String eName = file.getParentFile().getName();
+        String eName =null;
+        if(!StringUtils.isEmpty(equName)){
+            eName = equName.toLowerCase();
+        }else {
+            eName = file.getParentFile().getName().toLowerCase();
+        }
         List<EquDetailsInfo> equDetailsInfos = new ArrayList<>();
         String filePath = "";
         if(fileName.contains(".txt")){

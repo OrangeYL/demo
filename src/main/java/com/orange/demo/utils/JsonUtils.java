@@ -23,22 +23,34 @@ public class JsonUtils {
                     map.put("board_id",info.getBoardId());
                     map.put("pad_no",info.getPadNo());
                     map.put("insp_st_time",info.getInspStTime());
-                    map.put("insp_vol",info.getInspVol().toString());
-                    map.put("insp_area",info.getInspArea().toString());
-                    map.put("insp_hei",info.getInspHei().toString());
-                    map.put("insp_x",info.getInspX().toString());
-                    map.put("insp_y",info.getInspY().toString());
+                    map.put("insp_vol_step","insp_vol");
+                    map.put("insp_area_step","insp_area");
+                    map.put("insp_hei_step","insp_hei");
+                    map.put("insp_x_step","insp_x");
+                    map.put("insp_y_step","insp_y");
+                    map.put("insp_vol_data",info.getInspVol().toString());
+                    map.put("insp_area_data",info.getInspArea().toString());
+                    map.put("insp_hei_data",info.getInspHei().toString());
+                    map.put("insp_x_data",info.getInspX().toString());
+                    map.put("insp_y_data",info.getInspY().toString());
+                    map.put("sn",info.getMachineType().toString());
+                    map.put("item_num",info.getMachineType().toString());
                 }
                 if(i > 0){
                     map.put("machine_type"+ "_"+ i,info.getMachineType());
                     map.put("board_id"+"_"+ i,info.getBoardId());
                     map.put("pad_no"+"_"+ i,info.getPadNo());
                     map.put("insp_st_time"+"_"+ i,info.getInspStTime());
-                    map.put("insp_vol"+"_"+ i,info.getInspVol().toString());
-                    map.put("insp_area"+"_"+ i,info.getInspArea().toString());
-                    map.put("insp_hei"+"_"+ i,info.getInspHei().toString());
-                    map.put("insp_x"+"_"+ i,info.getInspX().toString());
-                    map.put("insp_y"+"_"+ i,info.getInspY().toString());
+                    map.put("insp_vol_step"+"_"+ i,"insp_vol_"+ i);
+                    map.put("insp_area_step"+"_"+ i,"insp_area_"+i);
+                    map.put("insp_hei_step"+"_"+ i,"insp_hei_"+i);
+                    map.put("insp_x_step"+"_"+ i,"insp_x_"+i);
+                    map.put("insp_y_step"+"_"+ i,"insp_y_"+i);
+                    map.put("insp_vol_data"+"_"+ i,info.getInspVol().toString());
+                    map.put("insp_area_data"+"_"+ i,info.getInspArea().toString());
+                    map.put("insp_hei_data"+"_"+ i,info.getInspHei().toString());
+                    map.put("insp_x_data"+"_"+ i,info.getInspX().toString());
+                    map.put("insp_y_data"+"_"+ i,info.getInspY().toString());
                 }
             }
         }
