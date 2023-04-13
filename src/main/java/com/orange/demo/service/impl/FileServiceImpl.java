@@ -47,7 +47,7 @@ public class FileServiceImpl implements FileService {
         //设备名字
         String eName =null;
         if(!StringUtils.isEmpty(equName)){
-            eName = equName.toLowerCase();
+            eName = equName.toLowerCase().replace("_","-");
         }else {
             eName = file.getParentFile().getName().toLowerCase().replace("_","-");
         }
