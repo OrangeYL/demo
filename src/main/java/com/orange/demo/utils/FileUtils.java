@@ -3,6 +3,7 @@ package com.orange.demo.utils;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.orange.demo.entity.EquDetailsInfo;
+import com.orange.demo.entity.SpiSnData;
 import com.orange.demo.entity.ViInfo;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.NameValuePair;
@@ -30,6 +31,32 @@ public class FileUtils {
     @Value(value = "${elmUrl}")
     private String elmUrl;
 
+    public SpiSnData readTxtForSpiSn(InputStream is,String filePath){
+        InputStreamReader reader = null;
+        BufferedReader bufferedReader = null;
+        SpiSnData spiSnData = null;
+        try{
+            reader = new InputStreamReader(is, "GBK");
+            bufferedReader = new BufferedReader(reader);
+            String line = bufferedReader.readLine();
+            if(StringUtils.isBlank(line)){
+                log.info("文件：" + filePath + "读取不到数据，直接返回！");
+                return new SpiSnData();
+            }
+            String[] strs = line.split(",");
+            String sn = strs[5];
+            String itemNum = sn.substring(0,12);
+            spiSnData = new SpiSnData();
+            spiSnData.setSn(sn);
+            spiSnData.setItemNum(itemNum);
+            bufferedReader.close();
+            reader.close();
+            is.close();
+        }catch (Exception e){
+            log.info("文件读取错误！原因："+e.toString());
+        }
+        return spiSnData;
+    }
     public List<EquDetailsInfo> readTxtForSpi(InputStream is, String equType,String filePath){
         //调用ELM接口得到对应的padNo
         List<NameValuePair> list = new LinkedList<>();

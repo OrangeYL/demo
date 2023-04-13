@@ -51,4 +51,10 @@ public class TestController {
         }
         padNos.forEach(System.out::println);
     }
+
+    public static void main(String[] args) {
+        String s ="";
+        String replace = s.replace("_", "-");
+        System.out.println(replace);
+    }
 }

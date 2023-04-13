@@ -181,7 +181,8 @@ public class PrimaryStageController implements Initializable {
         DataHelper.getMap().put("path",path);
         DataHelper.getMap().put("storePath",storePath);
         DataHelper.getMap().put("fileName",fileName);
-        DataHelper.getMap().put("equName",equName.toLowerCase());
+        String s = equName.replace("_","-");
+        DataHelper.getMap().put("equName",s.toLowerCase());
         DataHelper.getMap().put("equType",equType);
     }
     //创建监听
