@@ -10,8 +10,8 @@ logging:
   config: classpath:logback-spring.xml
 
 #测试环境
-#elmUrl: http://10.219.87.224:8080/veivo-boot/spc/spiConfig/listData
+elmUrl: http://10.219.87.224:8080/veivo-boot/spc/spiConfig/listData
 #正式环境
-elmUrl: http://elm.desaysv.com/veivo-boot/spc/spiConfig/listData
+#elmUrl: http://elm.desaysv.com/veivo-boot/spc/spiConfig/listData
 
 

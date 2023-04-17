@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.orange.demo.entity.EquDetailsInfo;
 import com.orange.demo.entity.SpiSnData;
+import com.orange.demo.entity.SpiVO;
 import com.orange.demo.entity.ViInfo;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.NameValuePair;
@@ -58,9 +59,9 @@ public class FileUtils {
         return spiSnData;
     }
     public List<EquDetailsInfo> readTxtForSpi(InputStream is, String equType,String filePath){
-        //调用ELM接口得到对应的padNo
+        //调用ELM接口得到对应的padNo，arrayId
         List<NameValuePair> list = new LinkedList<>();
-        List<String> padNos = new ArrayList<>();
+        List<SpiVO> padNos = new ArrayList<>();
 
         InputStreamReader reader = null;
         BufferedReader bufferedReader = null;
@@ -82,7 +83,7 @@ public class FileUtils {
             String s = strings[0];
             String[] strs = s.split("\\|");
             String machineType = strs[strs.length - 1];
-            //根据设备类型与机型调用ELM接口得到padNo
+            //根据设备类型与机型调用ELM接口得到padNo,arrayId
             BasicNameValuePair pair1 = new BasicNameValuePair("equType",equType);
             BasicNameValuePair pair2 = new BasicNameValuePair("machineType", machineType);
             list.add(pair1);
@@ -94,10 +95,14 @@ public class FileUtils {
                     JSONArray array = json.getJSONArray("result");
                     if(!CollectionUtils.isEmpty(array)){
                         for(Object jsonObject : array){
+                            SpiVO spiVO = new SpiVO();
                             JSONObject data = (JSONObject) jsonObject;
                             String padNo = data.getString("padNo");
-                            if(StringUtils.isNotBlank(padNo)){
-                                padNos.add(padNo);
+                            String arrayId = data.getString("arrayId");
+                            if(StringUtils.isNotBlank(padNo) && StringUtils.isNotBlank(arrayId)){
+                                spiVO.setPadNo(padNo);
+                                spiVO.setArrayId(arrayId);
+                                padNos.add(spiVO);
                             }
                         }
                     }
@@ -124,13 +129,16 @@ public class FileUtils {
                 EquDetailsInfo equDetailsInfo = new EquDetailsInfo();
                 String[] data = line.split(",");
                 //跟ELM接口得到的数据进行比较，得到需要读取的行
+                String arrayId = data[1];
                 String padNo = data[3];
                 for(int i = 0;i < padNos.size();i++){
+                    SpiVO spiVO = padNos.get(i);
                     try {
-                        if(padNo.equals(padNos.get(i))){
+                        if(padNo.equals(spiVO.getPadNo()) && arrayId.equals(spiVO.getArrayId())){
                             flag = 1;
                             equDetailsInfo.setMachineType(machineType);
                             equDetailsInfo.setBoardId(data[0]);
+                            equDetailsInfo.setArrayId(data[1]);
                             equDetailsInfo.setPadNo(data[3]);
                             equDetailsInfo.setInspStTime(data[8]);
                             equDetailsInfo.setInspVol(Double.valueOf(data[9]));

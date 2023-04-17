@@ -22,6 +22,8 @@ public class EquDetailsInfo implements Serializable {
 
     private String boardId;
 
+    private String arrayId;
+
     private String padNo;
 
     private String inspStTime;

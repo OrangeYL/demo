@@ -22,6 +22,7 @@ public class JsonUtils {
                 if(i == 0){
                     map.put("machine_type",info.getMachineType());
                     map.put("board_id",info.getBoardId());
+                    map.put("array_id",info.getArrayId());
                     map.put("pad_no",info.getPadNo());
                     map.put("insp_st_time",info.getInspStTime());
                     map.put("insp_vol_step","insp_vol");
@@ -40,6 +41,7 @@ public class JsonUtils {
                 if(i > 0){
                     map.put("machine_type"+ "_"+ i,info.getMachineType());
                     map.put("board_id"+"_"+ i,info.getBoardId());
+                    map.put("array_id"+"_"+i,info.getArrayId());
                     map.put("pad_no"+"_"+ i,info.getPadNo());
                     map.put("insp_st_time"+"_"+ i,info.getInspStTime());
                     map.put("insp_vol_step"+"_"+ i,"insp_vol");
