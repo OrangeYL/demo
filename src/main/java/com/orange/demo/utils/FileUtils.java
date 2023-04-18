@@ -180,7 +180,7 @@ public class FileUtils {
             bufferedReader = new BufferedReader(reader);
             int index = 1;
             viInfos = new ArrayList<>();
-            //读取第一行，取机型
+            //读取第一行，取机型,sn
             String line = bufferedReader.readLine();
             if(StringUtils.isBlank(line)){
                 log.info("文件：" + file.getAbsolutePath() + "读取不到机型，设备名，直接返回！");
@@ -190,6 +190,10 @@ public class FileUtils {
             //机型
             String str2 = strs[1];
             String machineType = str2.substring(str2.lastIndexOf(" ")+1,str2.length());
+            //sn,机型
+            String str3 = strs[3];
+            String sn = str3.substring(str3.lastIndexOf(" ")+1,str3.length());
+            String itemNum = sn.substring(0,12);
             //根据设备类型与机型调用ELM接口得到padNo
             BasicNameValuePair pair1 = new BasicNameValuePair("equType",equType);
             BasicNameValuePair pair2 = new BasicNameValuePair("machineType", machineType);
@@ -237,6 +241,9 @@ public class FileUtils {
                     try {
                         if(ref.equals(info.get(i))){
                             flag = 1;
+                            viInfo.setSn(sn);
+                            viInfo.setItemNum(itemNum);
+                            viInfo.setMachineType(machineType);
                             viInfo.setDX(Double.valueOf(data[5]));
                             viInfo.setDY(Double.valueOf(data[6]));
                             viInfo.setDTheta(Double.valueOf(data[7]));

@@ -65,16 +65,25 @@ public class JsonUtils {
             for(int i = 0;i < list.size();i++){
                 ViInfo info = list.get(i);
                 if(i == 0){
-                    map.put("dx",info.getDX());
-                    map.put("dy",info.getDY());
-                    map.put("dTheta",info.getDTheta());
-                    map.put("errCode",info.getErrCode());
+                    map.put("dx_step","dx");
+                    map.put("dy_step","dy");
+                    map.put("dtheta_step","dtheta");
+                    map.put("dx_data",info.getDX());
+                    map.put("dy_data",info.getDY());
+                    map.put("dtheta_data",info.getDTheta());
+                    map.put("errcode",info.getErrCode());
+                    map.put("sn",info.getSn());
+                    map.put("item_num",info.getItemNum());
+                    map.put("machine_type",info.getMachineType());
                 }
                 if(i > 0){
-                    map.put("dx"+ "_"+ i,info.getDY());
-                    map.put("dy"+"_"+ i,info.getDY());
-                    map.put("dTheta"+"_"+ i,info.getDTheta());
-                    map.put("errCode"+"_"+ i,info.getErrCode());
+                    map.put("dx_step"+"_"+i,"dx");
+                    map.put("dy_step"+"_"+i,"dy");
+                    map.put("dtheta_step"+"_"+i,"dtheta");
+                    map.put("dx_data"+ "_"+ i,info.getDY());
+                    map.put("dy_data"+"_"+ i,info.getDY());
+                    map.put("dtheta_data"+"_"+ i,info.getDTheta());
+                    map.put("errcode"+"_"+ i,info.getErrCode());
                 }
             }
         }

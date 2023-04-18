@@ -14,6 +14,12 @@ public class ViInfo implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
+    private String itemNum;
+
+    private String sn;
+
+    private String machineType;
+
     private Double dX;
 
     private Double dY;
