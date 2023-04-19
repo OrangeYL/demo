@@ -35,8 +35,8 @@ public class JsonUtils {
                     map.put("insp_hei_data",info.getInspHei().toString());
                     map.put("insp_x_data",info.getInspX().toString());
                     map.put("insp_y_data",info.getInspY().toString());
-                    map.put("sn",spiSnData.getSn().toString());
-                    map.put("item_num",spiSnData.getItemNum().toString());
+                    map.put("sn",spiSnData.getSn().toLowerCase());
+                    map.put("item_num",spiSnData.getItemNum().toLowerCase());
                 }
                 if(i > 0){
                     map.put("machine_type"+ "_"+ i,info.getMachineType());
