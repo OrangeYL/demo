@@ -15,10 +15,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * @author: Li ZhiCheng
@@ -193,19 +190,23 @@ public class FileUtils {
             //机型
             String str2 = strs[1];
             int bIndex = -1;
-            if(str2.startsWith(" ")){
-                bIndex = 0;
+            if(str2.contains(" ")){
+                bIndex = str2.lastIndexOf(" ");
+            }else{
+                bIndex = str2.lastIndexOf(":");
             }
             String machineType = str2.substring(bIndex+1,str2.length());
             //sn,机型
             String str3 = strs[3];
             int aIndex = -1;
-            if(str3.startsWith(" ")){
-                aIndex = 0;
+            if(str3.contains(" ")){
+                aIndex = str3.lastIndexOf(" ");
+            }else{
+                aIndex = str3.lastIndexOf(":");
             }
             String sn = str3.substring(aIndex+1,str3.length());
             String itemNum = sn.substring(0,sn.length());
-            if(sn.length() >= 12){
+            if(sn.length() > 12){
                 itemNum = sn.substring(0,12);
             }
             //根据设备类型与机型调用ELM接口得到padNo
@@ -223,7 +224,9 @@ public class FileUtils {
                             JSONObject data = (JSONObject) jsonObject;
                             String padNo = data.getString("padNo");
                             if(StringUtils.isNotBlank(padNo)){
-                                info.add(padNo);
+                                String[] sts = padNo.replace("，", ",").split(",");
+                                List<String> datas = Arrays.asList(sts);
+                                info.addAll(datas);
                             }
                         }
                     }
