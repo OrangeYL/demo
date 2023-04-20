@@ -20,7 +20,7 @@ public class JsonUtils {
             for(int i = 0;i < list.size();i++){
                 EquDetailsInfo info = list.get(i);
                 if(i == 0){
-                    map.put("machine_type",info.getMachineType());
+                    map.put("machine_type",info.getMachineType().toLowerCase());
                     map.put("board_id",info.getBoardId());
                     map.put("array_id",info.getArrayId());
                     map.put("pad_no",info.getPadNo());
@@ -30,16 +30,16 @@ public class JsonUtils {
                     map.put("insp_hei_step","insp_hei");
                     map.put("insp_x_step","insp_x");
                     map.put("insp_y_step","insp_y");
-                    map.put("insp_vol_data",info.getInspVol().toString());
-                    map.put("insp_area_data",info.getInspArea().toString());
-                    map.put("insp_hei_data",info.getInspHei().toString());
-                    map.put("insp_x_data",info.getInspX().toString());
-                    map.put("insp_y_data",info.getInspY().toString());
+                    map.put("insp_vol_data",info.getInspVol());
+                    map.put("insp_area_data",info.getInspArea());
+                    map.put("insp_hei_data",info.getInspHei());
+                    map.put("insp_x_data",info.getInspX());
+                    map.put("insp_y_data",info.getInspY());
                     map.put("sn",spiSnData.getSn().toLowerCase());
                     map.put("item_num",spiSnData.getItemNum().toLowerCase());
                 }
                 if(i > 0){
-                    map.put("machine_type"+ "_"+ i,info.getMachineType());
+                    map.put("machine_type"+ "_"+ i,info.getMachineType().toLowerCase());
                     map.put("board_id"+"_"+ i,info.getBoardId());
                     map.put("array_id"+"_"+i,info.getArrayId());
                     map.put("pad_no"+"_"+ i,info.getPadNo());
@@ -49,11 +49,11 @@ public class JsonUtils {
                     map.put("insp_hei_step"+"_"+ i,"insp_hei");
                     map.put("insp_x_step"+"_"+ i,"insp_x");
                     map.put("insp_y_step"+"_"+ i,"insp_y");
-                    map.put("insp_vol_data"+"_"+ i,info.getInspVol().toString());
-                    map.put("insp_area_data"+"_"+ i,info.getInspArea().toString());
-                    map.put("insp_hei_data"+"_"+ i,info.getInspHei().toString());
-                    map.put("insp_x_data"+"_"+ i,info.getInspX().toString());
-                    map.put("insp_y_data"+"_"+ i,info.getInspY().toString());
+                    map.put("insp_vol_data"+"_"+ i,info.getInspVol());
+                    map.put("insp_area_data"+"_"+ i,info.getInspArea());
+                    map.put("insp_hei_data"+"_"+ i,info.getInspHei());
+                    map.put("insp_x_data"+"_"+ i,info.getInspX());
+                    map.put("insp_y_data"+"_"+ i,info.getInspY());
                 }
             }
         }
@@ -72,9 +72,9 @@ public class JsonUtils {
                     map.put("dy_data",info.getDY());
                     map.put("dtheta_data",info.getDTheta());
                     map.put("errcode",info.getErrCode());
-                    map.put("sn",info.getSn());
-                    map.put("item_num",info.getItemNum());
-                    map.put("machine_type",info.getMachineType());
+                    map.put("sn",info.getSn().toLowerCase());
+                    map.put("item_num",info.getItemNum().toLowerCase());
+                    map.put("machine_type",info.getMachineType().toLowerCase());
                 }
                 if(i > 0){
                     map.put("dx_step"+"_"+i,"dx");

@@ -166,7 +166,11 @@ public class PrimaryStageController implements Initializable {
             return;
         }
         for(File f : files){
-            fileService.gatherFileForVi(f);
+            if(f.isFile()){
+                fileService.gatherFileForVi(f);
+            }else{
+                scanForVi(f.getAbsolutePath());
+            }
         }
     }
     //保存数据到配置文件和Map中

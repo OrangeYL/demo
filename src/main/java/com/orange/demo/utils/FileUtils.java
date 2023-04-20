@@ -46,7 +46,10 @@ public class FileUtils {
             }
             String[] strs = line.split(",");
             String sn = strs[5];
-            String itemNum = sn.substring(0,12);
+            String itemNum = sn;
+            if(sn.length() > 12){
+                itemNum = sn.substring(0,12);
+            }
             spiSnData = new SpiSnData();
             spiSnData.setSn(sn);
             spiSnData.setItemNum(itemNum);
@@ -189,11 +192,22 @@ public class FileUtils {
             String[] strs = line.split(",");
             //机型
             String str2 = strs[1];
-            String machineType = str2.substring(str2.lastIndexOf(" ")+1,str2.length());
+            int bIndex = -1;
+            if(str2.startsWith(" ")){
+                bIndex = 0;
+            }
+            String machineType = str2.substring(bIndex+1,str2.length());
             //sn,机型
             String str3 = strs[3];
-            String sn = str3.substring(str3.lastIndexOf(" ")+1,str3.length());
-            String itemNum = sn.substring(0,12);
+            int aIndex = -1;
+            if(str3.startsWith(" ")){
+                aIndex = 0;
+            }
+            String sn = str3.substring(aIndex+1,str3.length());
+            String itemNum = sn.substring(0,sn.length());
+            if(sn.length() >= 12){
+                itemNum = sn.substring(0,12);
+            }
             //根据设备类型与机型调用ELM接口得到padNo
             BasicNameValuePair pair1 = new BasicNameValuePair("equType",equType);
             BasicNameValuePair pair2 = new BasicNameValuePair("machineType", machineType);
