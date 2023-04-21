@@ -70,6 +70,7 @@ public class FileListener extends FileAlterationListenerAdaptor {
         File[] childrenFiles = directory.listFiles();
         //如果为空就不是
         if(Objects.isNull(childrenFiles) || childrenFiles.length == 0){
+            log.info("文件：" +directory.getAbsolutePath()+"不是采集文件！" );
             return false;
         }
         //包含要采集的文件则为true

@@ -134,9 +134,11 @@ public class FileUtils {
                 for(int i = 0;i < padNos.size();i++){
                     SpiVO spiVO = padNos.get(i);
                     try {
-                        if(padNo.equals(spiVO.getPadNo()) && arrayId.equals(spiVO.getArrayId())){
+                        if(padNo.equals(spiVO.getPadNo()) && arrayId.equals(spiVO.getArrayId()) && data.length >=14){
                             flag = 1;
                             equDetailsInfo.setMachineType(machineType);
+                            equDetailsInfo.setSn(machineType);
+                            equDetailsInfo.setItemNum(machineType);
                             equDetailsInfo.setBoardId(data[0]);
                             equDetailsInfo.setArrayId(data[1]);
                             equDetailsInfo.setPadNo(data[3]);

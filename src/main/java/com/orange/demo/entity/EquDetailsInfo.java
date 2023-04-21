@@ -38,4 +38,8 @@ public class EquDetailsInfo implements Serializable {
 
     private Double inspY;
 
+    private String itemNum;
+
+    private String sn;
+
 }

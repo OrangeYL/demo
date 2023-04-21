@@ -4,7 +4,6 @@ import com.alibaba.fastjson.JSONObject;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.orange.demo.entity.DataHelper;
 import com.orange.demo.entity.EquDetailsInfo;
-import com.orange.demo.entity.SpiSnData;
 import com.orange.demo.entity.ViInfo;
 import com.orange.demo.service.FileService;
 import com.orange.demo.utils.FileUtils;
@@ -53,26 +52,21 @@ public class FileServiceImpl implements FileService {
         }
         List<EquDetailsInfo> equDetailsInfos = new ArrayList<>();
         String filePath = "";
-        String filePath2 = file.getAbsolutePath() + "\\" + "insp_board.txt";
         if(fileName.contains(".txt")){
             filePath = file.getAbsolutePath()+"\\"+fileName;
         }else{
             filePath = file.getAbsolutePath() + "\\" + fileName + ".txt";
         }
         File aFile = new File(filePath);
-        File file1 = new File(filePath2);
         InputStream inputStream = null;
-        FileInputStream fileInputStream = null;
         try {
             inputStream = new FileInputStream(aFile);
-            fileInputStream = new FileInputStream(file1);
-            SpiSnData spiSnData = fileUtils.readTxtForSpiSn(fileInputStream, filePath2);
             equDetailsInfos = fileUtils.readTxtForSpi(inputStream, equType,filePath);
             if(equDetailsInfos.size() <= 0){
                 return;
             }
             //发送数据
-            JSONObject jsonObject = JsonUtils.convertToJsonForSpi(equDetailsInfos, eName,spiSnData);
+            JSONObject jsonObject = JsonUtils.convertToJsonForSpi(equDetailsInfos, eName);
             try {
                 MqttUtils.send(eName,jsonObject);
                 //移动文件夹（先复制再删除）
