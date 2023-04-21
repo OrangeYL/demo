@@ -198,19 +198,11 @@ public class FileUtils {
                 bIndex = str2.lastIndexOf(":");
             }
             String machineType = str2.substring(bIndex+1,str2.length());
-            //sn,机型
-            String str3 = strs[3];
-            int aIndex = -1;
-            if(str3.contains(" ")){
-                aIndex = str3.lastIndexOf(" ");
-            }else{
-                aIndex = str3.lastIndexOf(":");
+            if(str2.contains("(")){
+                machineType = str2.substring(bIndex+1,str2.lastIndexOf("("));
             }
-            String sn = str3.substring(aIndex+1,str3.length());
-            String itemNum = sn.substring(0,sn.length());
-            if(sn.length() > 12){
-                itemNum = sn.substring(0,12);
-            }
+            String sn = machineType;
+            String itemNum = machineType;
             //根据设备类型与机型调用ELM接口得到padNo
             BasicNameValuePair pair1 = new BasicNameValuePair("equType",equType);
             BasicNameValuePair pair2 = new BasicNameValuePair("machineType", machineType);
@@ -258,7 +250,7 @@ public class FileUtils {
                 String ref = data[0];
                 for(int i = 0;i < info.size();i++){
                     try {
-                        if(ref.equals(info.get(i))){
+                        if(ref.equals(info.get(i)) && data.length >=9){
                             flag = 1;
                             viInfo.setSn(sn);
                             viInfo.setItemNum(itemNum);
