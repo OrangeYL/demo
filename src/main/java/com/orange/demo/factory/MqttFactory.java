@@ -24,12 +24,12 @@ public class MqttFactory {
     //密码
     private final static String PASSWORD = "public";
 
-    private static Map<String,Object> map = new HashMap<>();
+    private static Map<String,MqttClient> map = new HashMap<>();
     /**
      *   获取客户端实例
      */
     public static MqttClient getInstance(String clientId) {
-        MqttClient c = (MqttClient) map.get(clientId);
+        MqttClient c =  map.get(clientId);
         if(c != null){
             return c;
         }

@@ -45,11 +45,22 @@ public class FileUtils {
             String sn = strs[5];
             spiSnData = new SpiSnData();
             spiSnData.setSn(sn);
-            bufferedReader.close();
-            reader.close();
-            is.close();
-        }catch (Exception e){
+        } catch (Exception e){
             log.info("文件读取错误！原因："+e.toString());
+        } finally {
+            try {
+                if(null != bufferedReader){
+                    bufferedReader.close();
+                }
+                if(null != reader){
+                    reader.close();
+                }
+                if(null != is){
+                    is.close();
+                }
+            } catch (IOException e) {
+               log.info("关闭流错误,原因：{}",e.toString());
+            }
         }
         return spiSnData;
     }
@@ -68,9 +79,10 @@ public class FileUtils {
             int index = 1;
             equDetailsInfos = new ArrayList<>();
             //第一行只取机型
-            String line = bufferedReader.readLine();
+            String line = null;
+            line = bufferedReader.readLine();
             //机型
-            if(StringUtils.isBlank(line)){
+            if (StringUtils.isBlank(line)) {
                 log.info("文件：" + filePath + "读取不到机型，直接返回！");
                 return new ArrayList<>();
             }
@@ -79,44 +91,43 @@ public class FileUtils {
             String[] strs = s.split("\\|");
             String machineType = strs[strs.length - 1];
             //根据设备类型与机型调用ELM接口得到padNo,arrayId
-            BasicNameValuePair pair1 = new BasicNameValuePair("equType",equType);
+            BasicNameValuePair pair1 = new BasicNameValuePair("equType", equType);
             BasicNameValuePair pair2 = new BasicNameValuePair("machineType", machineType);
             list.add(pair1);
             list.add(pair2);
             String result = HttpUtil.doGetJson(elmUrl, list);
-            if(StringUtils.isNotBlank(result)){
+            if (StringUtils.isNotBlank(result)) {
                 JSONObject json = JSONObject.parseObject(result);
-                if("true".equals(json.getString("success"))){
+                if ("true".equals(json.getString("success"))) {
                     JSONArray array = json.getJSONArray("result");
-                    if(!CollectionUtils.isEmpty(array)){
-                        for(Object jsonObject : array){
+                    if (!CollectionUtils.isEmpty(array)) {
+                        for (Object jsonObject : array) {
                             SpiVO spiVO = new SpiVO();
                             JSONObject data = (JSONObject) jsonObject;
                             String padNo = data.getString("padNo");
                             String arrayId = data.getString("arrayId");
-                            if(StringUtils.isNotBlank(padNo) && StringUtils.isNotBlank(arrayId)){
+                            if (StringUtils.isNotBlank(padNo) && StringUtils.isNotBlank(arrayId)) {
                                 spiVO.setPadNo(padNo);
                                 spiVO.setArrayId(arrayId);
                                 padNos.add(spiVO);
                             }
                         }
                     }
+                } else {
+                    log.info("采集文件：" + filePath + "时，调用ELM接口出错，原因：" + json.getString("message"));
                 }
-                else{
-                    log.info("采集文件："+filePath+"时，调用ELM接口出错，原因："+json.getString("message"));
-                }
-            }else{
-                log.info("采集文件："+filePath+"时，调用ELM接口出错，result为空！");
+            } else {
+                log.info("采集文件：" + filePath + "时，调用ELM接口出错，result为空！");
                 return new ArrayList<>();
             }
-            if(padNos.size() <= 0){
-                log.info("采集文件："+filePath+"出错，原因："+"通过设备类型"+equType+"和机型"+machineType+"没有查询到数据，padNos为空，不采集该文件！");
+            if (padNos.size() <= 0) {
+                log.info("采集文件：" + filePath + "出错，原因：" + "通过设备类型" + equType + "和机型" + machineType + "没有查询到数据，padNos为空，不采集该文件！");
                 return new ArrayList<>();
             }
             int flag = 0;
-            while((line = bufferedReader.readLine()) != null){
+            while ((line = bufferedReader.readLine()) != null) {
                 //第二行列名跳过
-                if(index == 1){
+                if (index == 1) {
                     index++;
                     continue;
                 }
@@ -126,10 +137,10 @@ public class FileUtils {
                 //跟ELM接口得到的数据进行比较，得到需要读取的行
                 String arrayId = data[1];
                 String padNo = data[3];
-                for(int i = 0;i < padNos.size();i++){
+                for (int i = 0; i < padNos.size(); i++) {
                     SpiVO spiVO = padNos.get(i);
                     try {
-                        if(padNo.equals(spiVO.getPadNo()) && arrayId.equals(spiVO.getArrayId()) && data.length >=14){
+                        if (padNo.equals(spiVO.getPadNo()) && arrayId.equals(spiVO.getArrayId()) && data.length >= 14) {
                             flag = 1;
                             equDetailsInfo.setMachineType(machineType);
                             equDetailsInfo.setSn(machineType);
@@ -147,18 +158,33 @@ public class FileUtils {
                             break;
                         }
                     } catch (Exception e) {
-                        log.info("采集文件："+filePath+"出错，原因："+e.toString());
+                        log.info("采集文件：" + filePath + "出错，原因：" + e.toString());
                     }
                 }
             }
-            if(flag == 0){
-                log.info("无法采集文件："+filePath+"，原因："+"通过设备类型"+equType+"和机型"+machineType+"查询到数据padNo："+padNos.toString()+"在该文件中不存在！");
+            if (flag == 0) {
+                log.info("无法采集文件：" + filePath + "，原因：" + "通过设备类型" + equType + "和机型" + machineType + "查询到数据padNo：" + padNos.toString() + "在该文件中不存在！");
             }
-            bufferedReader.close();
-            reader.close();
-            is.close();
-        } catch (Exception e) {
-            log.info("文件读取错误！原因："+e.toString());
+        } catch (UnsupportedEncodingException e) {
+            log.info("采集文件:{},出错，原因:{}",filePath,e.toString());
+        } catch (IOException e) {
+            log.info("采集文件:{},出错，原因:{}",filePath,e.toString());
+        } catch (Exception e){
+            log.info("采集文件:{},出错，原因:{}",filePath,e.toString());
+        } finally {
+            try {
+                if(null != bufferedReader){
+                    bufferedReader.close();
+                }
+                if(null != reader){
+                    reader.close();
+                }
+                if(null != is){
+                    is.close();
+                }
+            } catch (IOException e) {
+                log.info("关闭流错误,原因：{}",e.toString());
+            }
         }
         return equDetailsInfos;
     }

@@ -68,7 +68,8 @@ public class FileServiceImpl implements FileService {
             nInputStream = new FileInputStream(bFile);
             equDetailsInfos = fileUtils.readTxtForSpi(inputStream, equType,filePath);
             SpiSnData spiSnData = fileUtils.readTxtForSpiSn(nInputStream, filePath2);
-            if(equDetailsInfos.size() <= 0){
+            if(spiSnData == null || equDetailsInfos == null || equDetailsInfos.size() <= 0){
+                log.info("采集文件:{},采集不到数据！",file.getAbsolutePath());
                 return;
             }
             //发送数据

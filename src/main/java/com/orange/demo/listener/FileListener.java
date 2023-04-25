@@ -96,7 +96,7 @@ public class FileListener extends FileAlterationListenerAdaptor {
                 return true;
             }
         } catch (Exception e) {
-           log.info("判断文件采集出错,原因："+directory.getAbsolutePath());
+           log.info("判断文件:{},采集出错,原因：{}",directory.getAbsolutePath(),e.toString());
         }
         return false;
     }
