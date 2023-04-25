@@ -6,6 +6,9 @@ import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * @author: Li ZhiCheng
  * @create: 2023-03-2023/3/8 14:12
@@ -21,13 +24,17 @@ public class MqttFactory {
     //密码
     private final static String PASSWORD = "public";
 
-
+    private static Map<String,Object> map = new HashMap<>();
     /**
      *   获取客户端实例
-     *   单例模式, 存在则返回, 不存在则初始化
      */
     public static MqttClient getInstance(String clientId) {
+        MqttClient c = (MqttClient) map.get(clientId);
+        if(c != null){
+            return c;
+        }
         MqttClient client = init(clientId);
+        map.put(clientId,client);
         return client;
     }
 

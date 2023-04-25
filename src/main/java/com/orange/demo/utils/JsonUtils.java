@@ -14,7 +14,7 @@ import java.util.*;
  */
 public class JsonUtils {
 
-    public static JSONObject convertToJsonForSpi(List<EquDetailsInfo> list, String eName){
+    public static JSONObject convertToJsonForSpi(List<EquDetailsInfo> list, String eName,SpiSnData spiSnData){
         Map<String, Object> map = generalConvert(eName);
         if(list.size() > 0){
             for(int i = 0;i < list.size();i++){
@@ -35,7 +35,7 @@ public class JsonUtils {
                     map.put("insp_hei_data",info.getInspHei());
                     map.put("insp_x_data",info.getInspX());
                     map.put("insp_y_data",info.getInspY());
-                    map.put("sn",info.getSn().toLowerCase());
+                    map.put("sn",spiSnData.getSn().toLowerCase());
                     map.put("item_num",info.getItemNum().toLowerCase());
                 }
                 if(i > 0){

@@ -36,7 +36,7 @@
                 <TextField fx:id="storeField" GridPane.columnIndex="1" GridPane.rowIndex="1" />
                 <TextField fx:id="fileNameField" GridPane.columnIndex="1" GridPane.rowIndex="2" />
                 <TextField fx:id="equNameField" GridPane.columnIndex="1" GridPane.rowIndex="3" />
-                <ComboBox fx:id="equTypeBox" prefHeight="23.0" prefWidth="262.0" GridPane.columnIndex="1" GridPane.rowIndex="4" value="VI" >
+                <ComboBox fx:id="equTypeBox" prefHeight="23.0" prefWidth="262.0" GridPane.columnIndex="1" GridPane.rowIndex="4" value="SPI" >
                     <items>
                         <FXCollections fx:factory="observableArrayList">
                             <String fx:value="SPI"/>

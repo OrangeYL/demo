@@ -20,18 +20,26 @@ public class FileListener extends FileAlterationListenerAdaptor {
     //监听文件夹
     @Override
     public void onDirectoryCreate(File directory) {
-        String equType = (String) DataHelper.getMap().get("equType");
-        if("SPI".equals(equType)){
-            gatherFileForSpi(directory);
+        try {
+            String equType = (String) DataHelper.getMap().get("equType");
+            if("SPI".equals(equType)){
+                gatherFileForSpi(directory);
+            }
+        } catch (Exception e) {
+            log.info("采集文件:"+directory.getAbsolutePath()+"出现异常！原因："+e.toString());
         }
     }
 
     //监听文件
     @Override
     public void onFileCreate(File file) {
-        String equType = (String) DataHelper.getMap().get("equType");
-        if("VI".equals(equType)){
-            gatherFileForVi(file);
+        try {
+            String equType = (String) DataHelper.getMap().get("equType");
+            if("VI".equals(equType)){
+                gatherFileForVi(file);
+            }
+        } catch (Exception e) {
+            log.info("采集文件"+file.getAbsolutePath()+"出现异常！原因："+e.toString());
         }
     }
 
@@ -57,32 +65,38 @@ public class FileListener extends FileAlterationListenerAdaptor {
             }
             //采集文件
             fileService.gatherFileForSpi(file);
+        }else{
+            log.info("文件:"+file.getAbsolutePath()+"不是要采集的文件！");
         }
     }
 
     //判断文件夹是不是需要采集的文件夹
     public boolean judgeGatherContentsForSpi(File directory){
-        String fileName = (String) DataHelper.getMap().get("fileName");
-        if(!fileName.contains(".txt")){
-            fileName = fileName + ".txt";
-        }
-        //需要采集的文件夹里面都是txt文件，没有文件夹，以此作为判断
-        File[] childrenFiles = directory.listFiles();
-        //如果为空就不是
-        if(Objects.isNull(childrenFiles) || childrenFiles.length == 0){
-            log.info("文件：" +directory.getAbsolutePath()+"不是采集文件！" );
-            return false;
-        }
-        //包含要采集的文件则为true
-        for(File file : childrenFiles){
-            if(file.isFile() && file.getName().equals(fileName)){
+        try {
+            String fileName = (String) DataHelper.getMap().get("fileName");
+            if(!fileName.contains(".txt")){
+                fileName = fileName + ".txt";
+            }
+            //需要采集的文件夹里面都是txt文件，没有文件夹，以此作为判断
+            File[] childrenFiles = directory.listFiles();
+            //如果为空就不是
+            if(Objects.isNull(childrenFiles) || childrenFiles.length == 0){
+                log.info("文件：" +directory.getAbsolutePath()+"不是采集文件！" );
+                return false;
+            }
+            //包含要采集的文件则为true
+            for(File file : childrenFiles){
+                if(file.isFile() && file.getName().equals(fileName)){
+                    return true;
+                }
+            }
+            //如果没有文件夹，视为true
+            List<File> files = FileUtils.getFile(directory.getAbsolutePath());
+            if(files.size() <= 0){
                 return true;
             }
-        }
-        //如果没有文件夹，视为true
-        List<File> files = FileUtils.getFile(directory.getAbsolutePath());
-        if(files.size() <= 0){
-            return true;
+        } catch (Exception e) {
+           log.info("判断文件采集出错,原因："+directory.getAbsolutePath());
         }
         return false;
     }

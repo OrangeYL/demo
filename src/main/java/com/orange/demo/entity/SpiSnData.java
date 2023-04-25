@@ -14,7 +14,5 @@ public class SpiSnData implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    private String itemNum;
-
     private String sn;
 }

@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.orange.demo.entity.DataHelper;
 import com.orange.demo.entity.EquDetailsInfo;
+import com.orange.demo.entity.SpiSnData;
 import com.orange.demo.entity.ViInfo;
 import com.orange.demo.service.FileService;
 import com.orange.demo.utils.FileUtils;
@@ -52,21 +53,26 @@ public class FileServiceImpl implements FileService {
         }
         List<EquDetailsInfo> equDetailsInfos = new ArrayList<>();
         String filePath = "";
+        String filePath2 = file.getAbsolutePath() + "\\"+"insp_board.txt";
         if(fileName.contains(".txt")){
             filePath = file.getAbsolutePath()+"\\"+fileName;
         }else{
             filePath = file.getAbsolutePath() + "\\" + fileName + ".txt";
         }
         File aFile = new File(filePath);
+        File bFile = new File(filePath2);
         InputStream inputStream = null;
+        InputStream nInputStream = null;
         try {
             inputStream = new FileInputStream(aFile);
+            nInputStream = new FileInputStream(bFile);
             equDetailsInfos = fileUtils.readTxtForSpi(inputStream, equType,filePath);
+            SpiSnData spiSnData = fileUtils.readTxtForSpiSn(nInputStream, filePath2);
             if(equDetailsInfos.size() <= 0){
                 return;
             }
             //发送数据
-            JSONObject jsonObject = JsonUtils.convertToJsonForSpi(equDetailsInfos, eName);
+            JSONObject jsonObject = JsonUtils.convertToJsonForSpi(equDetailsInfos, eName,spiSnData);
             try {
                 MqttUtils.send(eName,jsonObject);
                 //移动文件夹（先复制再删除）
@@ -76,9 +82,13 @@ public class FileServiceImpl implements FileService {
                 log.info("MQTT转换JSON异常，原因："+ e.toString());
             } catch (MqttException e) {
                 log.info("MQTT发送消息异常，原因："+ e.toString());
+            } catch (Exception e){
+                log.info("采集文件:"+file.getAbsolutePath()+"出现异常！原因："+e.toString());
             }
         } catch (FileNotFoundException e) {
             log.info("文件不存在！原因："+e.toString());
+        }catch (Exception e){
+            log.info("采集文件:"+file.getAbsolutePath()+"出现异常！原因："+e.toString());
         }
     }
 

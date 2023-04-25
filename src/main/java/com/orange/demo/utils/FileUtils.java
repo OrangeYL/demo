@@ -43,13 +43,8 @@ public class FileUtils {
             }
             String[] strs = line.split(",");
             String sn = strs[5];
-            String itemNum = sn;
-            if(sn.length() > 12){
-                itemNum = sn.substring(0,12);
-            }
             spiSnData = new SpiSnData();
             spiSnData.setSn(sn);
-            spiSnData.setItemNum(itemNum);
             bufferedReader.close();
             reader.close();
             is.close();
