@@ -106,7 +106,8 @@ public class FileServiceImpl implements FileService {
         try {
             inputStream = new FileInputStream(file);
             viInfos = fileUtils.readTxtForVi(inputStream,equType,file);
-            if(viInfos.size() <= 0){
+            if(viInfos == null || viInfos.size() <= 0){
+                log.info("采集文件:{},采集不到数据！",file.getAbsolutePath());
                 return;
             }
             try {
@@ -119,9 +120,13 @@ public class FileServiceImpl implements FileService {
                 log.info("MQTT转换JSON异常，原因："+ e.toString());
             } catch (MqttException e) {
                 log.info("MQTT发送消息异常，原因："+ e.toString());
+            }catch (Exception e){
+                log.info("采集文件:"+file.getAbsolutePath()+"出现异常！原因："+e.toString());
             }
         } catch (FileNotFoundException e) {
             log.info("文件不存在！原因："+e.toString());
+        }catch (Exception e){
+            log.info("采集文件:"+file.getAbsolutePath()+"出现异常！原因："+e.toString());
         }
     }
 }

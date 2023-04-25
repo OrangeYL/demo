@@ -212,18 +212,33 @@ public class FileUtils {
             String[] strs = line.split(",");
             //机型
             String str2 = strs[1];
+            String machineType = "";
+            //sn
+            String str3 = strs[3];
+            String sn = "";
             int bIndex = -1;
-            if(str2.contains(" ")){
-                bIndex = str2.lastIndexOf(" ");
-            }else{
-                bIndex = str2.lastIndexOf(":");
+            if(StringUtils.isNotBlank(str2)){
+                if(str2.contains(" ")){
+                    bIndex = str2.lastIndexOf(" ");
+                }else{
+                    bIndex = str2.lastIndexOf(":");
+                }
+                machineType = str2.substring(bIndex+1,str2.length());
+                if(str2.contains("(")){
+                    machineType = str2.substring(bIndex+1,str2.lastIndexOf("("));
+                }
             }
-            String machineType = str2.substring(bIndex+1,str2.length());
-            if(str2.contains("(")){
-                machineType = str2.substring(bIndex+1,str2.lastIndexOf("("));
-            }
-            String sn = machineType;
+            //机型
             String itemNum = machineType;
+            int aIndex = -1;
+            if(StringUtils.isNotBlank(str3)){
+                if(str3.contains(" ")){
+                    aIndex = str3.lastIndexOf(" ");
+                }else{
+                    aIndex = str3.lastIndexOf(":");
+                }
+                sn = str3.substring(aIndex+1,str3.length());
+            }
             //根据设备类型与机型调用ELM接口得到padNo
             BasicNameValuePair pair1 = new BasicNameValuePair("equType",equType);
             BasicNameValuePair pair2 = new BasicNameValuePair("machineType", machineType);
@@ -294,8 +309,26 @@ public class FileUtils {
             bufferedReader.close();
             reader.close();
             is.close();
-        }catch (Exception e){
-            log.info("文件读取错误！原因："+e.toString());
+        }catch (UnsupportedEncodingException e){
+            log.info("文件:{},读取错误！原因:{}",file.getAbsolutePath(),e.toString());
+        }catch (IOException e){
+            log.info("文件:{},读取错误！原因:{}",file.getAbsolutePath(),e.toString());
+        } catch (Exception e){
+            log.info("文件:{},读取错误！原因:{}",file.getAbsolutePath(),e.toString());
+        } finally {
+            try {
+                if(null != bufferedReader){
+                    bufferedReader.close();
+                }
+                if(null != reader){
+                    reader.close();
+                }
+                if(null != is){
+                    is.close();
+                }
+            } catch (IOException e) {
+                log.info("关闭流错误,原因：{}",e.toString());
+            }
         }
         return viInfos;
     }
