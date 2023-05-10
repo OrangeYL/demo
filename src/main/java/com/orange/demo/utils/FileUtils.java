@@ -42,9 +42,26 @@ public class FileUtils {
                 return new SpiSnData();
             }
             String[] strs = line.split(",");
-            String sn = strs[5];
+            String sn = "";
+            String lineStr = "";
             spiSnData = new SpiSnData();
+            if(strs.length >=6){
+                sn = strs[5];
+            }
+            int index = 1;
+            while((line = bufferedReader.readLine()) != null){
+               if(index == 1){
+                   index++;
+                   continue;
+               }
+               String[] s = line.split(",");
+               if(s.length >= 3){
+                   lineStr = s[2];
+                   break;
+               }
+            }
             spiSnData.setSn(sn);
+            spiSnData.setLine(lineStr);
         } catch (Exception e){
             log.info("文件读取错误！原因："+e.toString());
         } finally {

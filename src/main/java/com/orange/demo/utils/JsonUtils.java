@@ -36,6 +36,7 @@ public class JsonUtils {
                     map.put("insp_x_data",info.getInspX());
                     map.put("insp_y_data",info.getInspY());
                     map.put("sn",spiSnData.getSn().toLowerCase());
+                    map.put("line",spiSnData.getLine().toLowerCase());
                     map.put("item_num",info.getItemNum().toLowerCase());
                 }
                 if(i > 0){
